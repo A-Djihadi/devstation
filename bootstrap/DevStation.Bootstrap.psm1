@@ -136,6 +136,82 @@ function Test-Prerequisites {
 
 <#
 .SYNOPSIS
+Lit la valeur du PATH utilisateur (HKCU).
+#>
+function Get-UserPathValue {
+    return [Environment]::GetEnvironmentVariable('Path', 'User')
+}
+
+<#
+.SYNOPSIS
+Ecrit la valeur du PATH utilisateur (HKCU uniquement).
+#>
+function Set-UserPathValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    [Environment]::SetEnvironmentVariable('Path', $Value, 'User')
+}
+
+<#
+.SYNOPSIS
+Ajoute un dossier en tete du PATH utilisateur s'il n'y figure pas deja.
+.DESCRIPTION
+Renvoie $true si le PATH utilisateur a ete modifie, $false sinon.
+#>
+function Add-UserPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Dir
+    )
+
+    $current = Get-UserPathValue
+    if ($null -eq $current) { $current = "" }
+
+    $normalized = $Dir.TrimEnd('\')
+    $alreadyPresent = $false
+    foreach ($entry in ($current -split ';')) {
+        if ($entry.TrimEnd('\') -ieq $normalized) {
+            $alreadyPresent = $true
+            break
+        }
+    }
+
+    $changed = $false
+    if (-not $alreadyPresent) {
+        if ($current -eq "") {
+            $newValue = $Dir
+        }
+        else {
+            $newValue = "$Dir;$current"
+        }
+        Set-UserPathValue -Value $newValue
+        $changed = $true
+    }
+
+    $sessionPresent = $false
+    foreach ($entry in ($env:Path -split ';')) {
+        if ($entry.TrimEnd('\') -ieq $normalized) {
+            $sessionPresent = $true
+            break
+        }
+    }
+    if (-not $sessionPresent) {
+        if ($env:Path) {
+            $env:Path = "$Dir;$env:Path"
+        }
+        else {
+            $env:Path = $Dir
+        }
+    }
+
+    return $changed
+}
+
+<#
+.SYNOPSIS
 Telecharge l'executable DevStation, verifie son empreinte et renvoie son chemin.
 #>
 function Install-DevStation {
@@ -229,4 +305,4 @@ function Start-BootstrapPx {
     return "http://127.0.0.1:3128"
 }
 
-Export-ModuleMember -Function Get-DevStationUrls, Get-ExpectedHash, Test-FileHash256, Invoke-Download, Test-Prerequisites, Install-DevStation, Start-BootstrapPx
+Export-ModuleMember -Function Get-DevStationUrls, Get-ExpectedHash, Test-FileHash256, Invoke-Download, Test-Prerequisites, Install-DevStation, Start-BootstrapPx, Add-UserPath
