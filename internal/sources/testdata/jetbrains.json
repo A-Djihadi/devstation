@@ -1,0 +1,27 @@
+{
+ "IIC": [
+  {
+   "date": "2025-12-08",
+   "type": "release",
+   "version": "2025.3",
+   "build": "253.28294.334",
+   "downloads": {
+    "windowsZip": {
+     "link": "https://download.jetbrains.com/idea/idea-2025.3.win.zip",
+     "size": 1526871900,
+     "checksumLink": "https://download.jetbrains.com/idea/idea-2025.3.win.zip.sha256"
+    },
+    "windows": {
+     "link": "https://download.jetbrains.com/idea/idea-2025.3.exe",
+     "size": 1108206656,
+     "checksumLink": "https://download.jetbrains.com/idea/idea-2025.3.exe.sha256"
+    },
+    "linux": {
+     "link": "https://download.jetbrains.com/idea/idea-2025.3.tar.gz",
+     "size": 1515485267,
+     "checksumLink": "https://download.jetbrains.com/idea/idea-2025.3.tar.gz.sha256"
+    }
+   }
+  }
+ ]
+}

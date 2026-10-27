@@ -1,0 +1,50 @@
+[
+ {
+  "release_name": "jdk-21.0.12.1+1",
+  "version_data": {
+   "major": 21,
+   "minor": 0,
+   "security": 12,
+   "build": 1,
+   "semver": "21.0.12+101.0.LTS",
+   "openjdk_version": "21.0.12.1+1-LTS"
+  },
+  "binaries": [
+   {
+    "os": "windows",
+    "architecture": "x64",
+    "image_type": "jdk",
+    "package": {
+     "name": "OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+     "link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+     "checksum": "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e",
+     "size": 205073461
+    }
+   }
+  ]
+ },
+ {
+  "release_name": "jdk-21.0.12+8",
+  "version_data": {
+   "major": 21,
+   "minor": 0,
+   "security": 12,
+   "build": 8,
+   "semver": "21.0.12+8.0.LTS",
+   "openjdk_version": "21.0.12+8-LTS"
+  },
+  "binaries": [
+   {
+    "os": "windows",
+    "architecture": "x64",
+    "image_type": "jdk",
+    "package": {
+     "name": "OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip",
+     "link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip",
+     "checksum": "9ba963ee2371874a74185d18bc7bb2ab9407df7683300855ed7606e0662321d0",
+     "size": 205069442
+    }
+   }
+  ]
+ }
+]

@@ -1,0 +1,108 @@
+[
+ {
+  "tag_name": "v6.2.0-rc1",
+  "prerelease": true,
+  "draft": false,
+  "assets": [
+   {
+    "name": "podman-installer-windows-amd64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.2.0-rc1/podman-installer-windows-amd64.msi",
+    "digest": "sha256:c539e593e6dc4a74afcfc0cf6d19c1c9260c268888d17b5973fb63796436a0e0"
+   },
+   {
+    "name": "podman-installer-windows-arm64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.2.0-rc1/podman-installer-windows-arm64.msi",
+    "digest": "sha256:1011f609274a70af9da28ce933f32f7d0338ad07035ef97b79a463e9dd9b5d34"
+   },
+   {
+    "name": "podman-remote-release-windows_amd64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.2.0-rc1/podman-remote-release-windows_amd64.zip",
+    "digest": "sha256:2799203ba820ebc3e7303850a4b9f23af919f24c0247ca7f9de6ede5fd3ae7d8"
+   },
+   {
+    "name": "podman-remote-release-windows_arm64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.2.0-rc1/podman-remote-release-windows_arm64.zip",
+    "digest": "sha256:6a8a1ad44f1782af5b6274e109c7a484acc76097c0111f5078fe72eb7647e128"
+   },
+   {
+    "name": "shasums",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.2.0-rc1/shasums",
+    "digest": "sha256:c151d19dde968befd7bd510f2fbf981039a4c3da629461d6202892f42cdb3fe9"
+   }
+  ]
+ },
+ {
+  "tag_name": "v6.1.4",
+  "prerelease": false,
+  "draft": false,
+  "assets": [
+   {
+    "name": "podman-installer-windows-amd64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-amd64.msi",
+    "digest": "sha256:4a05240054cb990629cbe098db090c5c7848c44162c11910cabb45ca75a40d53"
+   },
+   {
+    "name": "podman-installer-windows-arm64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-installer-windows-arm64.msi",
+    "digest": "sha256:a1b65ffa7dd60a5eceedd3df7fc5d1d005b8d21018ff9deaa15aeacfbc92cd6c"
+   },
+   {
+    "name": "podman-remote-release-windows_amd64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-remote-release-windows_amd64.zip",
+    "digest": "sha256:8b70cd2511bfac9b65e58858d8fe54eeb68e3420eeb600e3f869b9a4b8576572"
+   },
+   {
+    "name": "podman-remote-release-windows_arm64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/podman-remote-release-windows_arm64.zip",
+    "digest": "sha256:7987844d58b8d0320de94260d5b3cb414ef7f92db93986f6819f7e36fac125d6"
+   },
+   {
+    "name": "shasums",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.4/shasums",
+    "digest": "sha256:2e2137f14806c5efb43fcd63ff8ed53747a499e83793fe07993d972eb6db9b79"
+   }
+  ]
+ },
+ {
+  "tag_name": "v5.8.9",
+  "prerelease": false,
+  "draft": false,
+  "assets": [
+   {
+    "name": "podman-installer-windows-amd64.exe",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-installer-windows-amd64.exe",
+    "digest": "sha256:ced3ec446643a44dc256dea617d1c71ed49d6255176f310a52b03250a9b96a7c"
+   },
+   {
+    "name": "podman-installer-windows-amd64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-installer-windows-amd64.msi",
+    "digest": "sha256:60642fdd4c82541b9eb6d71d8a0b82516c1b87c4958e03e7e59996a017bc68d7"
+   },
+   {
+    "name": "podman-installer-windows-arm64.exe",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-installer-windows-arm64.exe",
+    "digest": "sha256:2c8900e655d20a050153cfcd68ecdac4bd139d6280ed159856426385b16aeb3e"
+   },
+   {
+    "name": "podman-installer-windows-arm64.msi",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-installer-windows-arm64.msi",
+    "digest": "sha256:a01f37ae428689793628ac62c6b66c5f21c11578203920169ef3d52ac1bd30dc"
+   },
+   {
+    "name": "podman-remote-release-windows_amd64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-remote-release-windows_amd64.zip",
+    "digest": "sha256:5829085422452f4159545325acd52764a4e343937c24087b57da3176a7dd70d7"
+   },
+   {
+    "name": "podman-remote-release-windows_arm64.zip",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/podman-remote-release-windows_arm64.zip",
+    "digest": "sha256:716d0d4ba305747f4086e53c3a8f7bdd3388af2f755d1107100b7e7b8ef560d8"
+   },
+   {
+    "name": "shasums",
+    "browser_download_url": "https://github.com/podman-container-tools/podman/releases/download/v5.8.9/shasums",
+    "digest": "sha256:d8b08809c8e047032217ddb33dea9c579744f23f9fe2049f425c83e114b1bdf4"
+   }
+  ]
+ }
+]

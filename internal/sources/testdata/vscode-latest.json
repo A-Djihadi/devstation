@@ -1,0 +1,11 @@
+{
+ "url": "https://vscode.download.prss.microsoft.com/dbazure/download/stable/e646868227c3e3a9e3f24277c8c7220be42c0be7/VSCode-win32-x64-1.143.1.zip",
+ "name": "1.143.1",
+ "version": "e646868227c3e3a9e3f24277c8c7220be42c0be7",
+ "productVersion": "1.143.1",
+ "hash": "cd103eed44088b253304377f6d384b8df2d40576",
+ "timestamp": 1792690529437,
+ "sha256hash": "b4f9643b8a549ca2c85a1bbc9063fc76f1e08fc0036a7f6a1a181cdc05235eca",
+ "supportsFastUpdate": true,
+ "notes": "e646868227c3e3a9e3f24277c8c7220be42c0be7"
+}

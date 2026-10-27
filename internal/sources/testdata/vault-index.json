@@ -1,0 +1,97 @@
+{
+ "name": "vault",
+ "versions": {
+  "1.10.0+ent": {
+   "name": "vault",
+   "version": "1.10.0+ent",
+   "shasums": "vault_1.10.0+ent_SHA256SUMS",
+   "builds": [
+    {
+     "arch": "amd64",
+     "filename": "vault_1.10.0+ent_linux_amd64.zip",
+     "name": "vault",
+     "os": "linux",
+     "url": "https://releases.hashicorp.com/vault/1.10.0+ent/vault_1.10.0+ent_linux_amd64.zip",
+     "version": "1.10.0+ent"
+    },
+    {
+     "arch": "amd64",
+     "filename": "vault_1.10.0+ent_windows_amd64.zip",
+     "name": "vault",
+     "os": "windows",
+     "url": "https://releases.hashicorp.com/vault/1.10.0+ent/vault_1.10.0+ent_windows_amd64.zip",
+     "version": "1.10.0+ent"
+    }
+   ]
+  },
+  "0.10.0-rc1": {
+   "name": "vault",
+   "version": "0.10.0-rc1",
+   "shasums": "vault_0.10.0-rc1_SHA256SUMS",
+   "builds": [
+    {
+     "arch": "amd64",
+     "filename": "vault_0.10.0-rc1_linux_amd64.zip",
+     "name": "vault",
+     "os": "linux",
+     "url": "https://releases.hashicorp.com/vault/0.10.0-rc1/vault_0.10.0-rc1_linux_amd64.zip",
+     "version": "0.10.0-rc1"
+    },
+    {
+     "arch": "amd64",
+     "filename": "vault_0.10.0-rc1_windows_amd64.zip",
+     "name": "vault",
+     "os": "windows",
+     "url": "https://releases.hashicorp.com/vault/0.10.0-rc1/vault_0.10.0-rc1_windows_amd64.zip",
+     "version": "0.10.0-rc1"
+    }
+   ]
+  },
+  "2.2.0": {
+   "name": "vault",
+   "version": "2.2.0",
+   "shasums": "vault_2.2.0_SHA256SUMS",
+   "builds": [
+    {
+     "arch": "amd64",
+     "filename": "vault_2.2.0_linux_amd64.zip",
+     "name": "vault",
+     "os": "linux",
+     "url": "https://releases.hashicorp.com/vault/2.2.0/vault_2.2.0_linux_amd64.zip",
+     "version": "2.2.0"
+    },
+    {
+     "arch": "amd64",
+     "filename": "vault_2.2.0_windows_amd64.zip",
+     "name": "vault",
+     "os": "windows",
+     "url": "https://releases.hashicorp.com/vault/2.2.0/vault_2.2.0_windows_amd64.zip",
+     "version": "2.2.0"
+    }
+   ]
+  },
+  "2.2.1": {
+   "name": "vault",
+   "version": "2.2.1",
+   "shasums": "vault_2.2.1_SHA256SUMS",
+   "builds": [
+    {
+     "arch": "amd64",
+     "filename": "vault_2.2.1_linux_amd64.zip",
+     "name": "vault",
+     "os": "linux",
+     "url": "https://releases.hashicorp.com/vault/2.2.1/vault_2.2.1_linux_amd64.zip",
+     "version": "2.2.1"
+    },
+    {
+     "arch": "amd64",
+     "filename": "vault_2.2.1_windows_amd64.zip",
+     "name": "vault",
+     "os": "windows",
+     "url": "https://releases.hashicorp.com/vault/2.2.1/vault_2.2.1_windows_amd64.zip",
+     "version": "2.2.1"
+    }
+   ]
+  }
+ }
+}

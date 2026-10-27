@@ -1,0 +1,39 @@
+[
+ {
+  "tag_name": "v5.6.1",
+  "prerelease": false,
+  "draft": false,
+  "assets": [
+   {
+    "name": "checksums.txt",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/checksums.txt",
+    "digest": "sha256:71a925494d98575a801f4332f372d41a83badaffa7755ccf42d841c1d8b38aa8"
+   },
+   {
+    "name": "docker-compose-windows-x86_64.exe",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/docker-compose-windows-x86_64.exe",
+    "digest": "sha256:91b1492f0a923427651e2b955739d732ac36b8191193bf4799e62f3e3525c4cd"
+   },
+   {
+    "name": "docker-compose-windows-x86_64.exe.sha256",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/docker-compose-windows-x86_64.exe.sha256",
+    "digest": "sha256:6801f98918957ae111503e5f4e6b917d7186e6fdcd508e71f88459ca84593627"
+   },
+   {
+    "name": "docker-compose-windows-x86_64.provenance.json",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/docker-compose-windows-x86_64.provenance.json",
+    "digest": "sha256:07fcbfe244ed8dbd96cac7898e195f704511caea41b27c00c475db00ff8592ff"
+   },
+   {
+    "name": "docker-compose-windows-x86_64.sbom.json",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/docker-compose-windows-x86_64.sbom.json",
+    "digest": "sha256:685382cedd192c406737b30dfcec24adfeac9148cae44bfdb14021e6cb7eca16"
+   },
+   {
+    "name": "docker-compose-windows-x86_64.sigstore.json",
+    "browser_download_url": "https://github.com/docker/compose/releases/download/v5.6.1/docker-compose-windows-x86_64.sigstore.json",
+    "digest": "sha256:f7846a1e8a08984705b8f5178f4fff8606faf4bd2b0f936c9a7a4bc62d6ea997"
+   }
+  ]
+ }
+]

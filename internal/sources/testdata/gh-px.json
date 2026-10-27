@@ -1,0 +1,29 @@
+[
+ {
+  "tag_name": "v0.13.0",
+  "prerelease": true,
+  "draft": false,
+  "assets": [
+   {
+    "name": "px-v0.13.0-windows-amd64-wheels.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.13.0/px-v0.13.0-windows-amd64-wheels.zip",
+    "digest": "sha256:74aa5a7b68fbb78fc68525383e5df7a47b2b5e2f6c6a4e70aa499ece967a7a32"
+   },
+   {
+    "name": "px-v0.13.0-windows-amd64-wheels.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.13.0/px-v0.13.0-windows-amd64-wheels.zip.sha256",
+    "digest": "sha256:c850394f5e8632f5d13cc613020defc70e7557f841ec9249934d7606bf265740"
+   },
+   {
+    "name": "px-v0.13.0-windows-amd64.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.13.0/px-v0.13.0-windows-amd64.zip",
+    "digest": "sha256:76c29b666e105c93d116ab506380aa006316a6cb66091cd40203d387bc04b6b9"
+   },
+   {
+    "name": "px-v0.13.0-windows-amd64.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.13.0/px-v0.13.0-windows-amd64.zip.sha256",
+    "digest": "sha256:c5c8e30910c71b03a59701aec0ba9cbba3b0da87aa338de173a93cea73e4035f"
+   }
+  ]
+ }
+]
