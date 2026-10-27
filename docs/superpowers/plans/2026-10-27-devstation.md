@@ -31,7 +31,7 @@ PowerShell 5.1 + Pester 5. Démos : Spring Boot 3 / Java 21 / Maven ; Angular + 
 - Textes affichés en **français** ; `NO_COLOR` et absence de TTY ⇒ texte simple sans animation.
 - Valeurs d'exemple fictives uniquement (`*.example.com`) : le code part chez DeepSeek.
 - Sandbox de test : Linux, **sans réseau**, pas de nouvelle dépendance Go hors `go.mod` posé en préparation.
-- Commande de test (`TEST_CMD`) du dépôt `devstation` :
+- Commande de test (`TEST_CMD`) du dépôt `devstation` : `sh scripts/test.sh` (même script en CI), soit :
   `export GOCACHE=/tmp/gocache GOPROXY=off GOTOOLCHAIN=local; go vet ./... && go test ./... && GOOS=windows go vet ./... && GOOS=windows go build ./... && pwsh -NoProfile -Command "Invoke-Pester -CI -Path tests/ps"`
 - Code Windows : fichiers `*_windows.go` ; leur pendant factice/stub `*_other.go` (`//go:build !windows`).
 

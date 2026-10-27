@@ -1,0 +1,15 @@
+# Sandbox des agents : Linux, réseau coupé à l'exécution.
+# Tout ce dont les tests ont besoin est téléchargé ici (modules Go, PowerShell, Pester).
+FROM golang:1.27.3
+ARG PWSH_VERSION=7.5.4
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 GOCACHE=/tmp/gocache GOFLAGS=-mod=readonly
+RUN curl -fsSL -o /tmp/pwsh.tgz \
+      https://github.com/PowerShell/PowerShell/releases/download/v${PWSH_VERSION}/powershell-${PWSH_VERSION}-linux-x64.tar.gz \
+ && mkdir -p /opt/pwsh && tar -xzf /tmp/pwsh.tgz -C /opt/pwsh && rm /tmp/pwsh.tgz \
+ && chmod +x /opt/pwsh/pwsh && ln -s /opt/pwsh/pwsh /usr/local/bin/pwsh \
+ && pwsh -NoProfile -Command "Save-PSResource -Name Pester -Version 5.7.1 -Path /opt/pwsh/Modules -TrustRepository -ErrorAction Stop"
+COPY go.mod go.sum /deps/
+RUN cd /deps && go mod download all && GOOS=windows go list -deps -test std >/dev/null
+RUN useradd -m runner && chown -R runner /tmp/gocache
+USER runner
+WORKDIR /work
