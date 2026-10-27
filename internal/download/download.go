@@ -290,6 +290,27 @@ func (c *Client) download(ctx context.Context, rawURL, dest string, sum Checksum
 	return verified, nil
 }
 
+// GetText télécharge l'URL et retourne le corps sous forme de texte.
+func (c *Client) GetText(ctx context.Context, rawURL string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("statut HTTP %d", resp.StatusCode)
+	}
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
 // GetJSON télécharge l'URL et décode le corps JSON dans v.
 func (c *Client) GetJSON(ctx context.Context, rawURL string, v any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
