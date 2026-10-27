@@ -3,6 +3,7 @@
 package winenv
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -138,7 +139,7 @@ func (l *windowsLinks) SetJunction(link, target string) error {
 			return err
 		}
 	}
-	res, err := l.runner.Run(nil, execx.Cmd{
+	res, err := l.runner.Run(context.Background(), execx.Cmd{
 		Name: "cmd",
 		Args: []string{"/c", "mklink", "/J", link, target},
 	})
