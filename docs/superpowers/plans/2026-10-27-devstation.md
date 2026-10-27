@@ -49,11 +49,11 @@ PowerShell 5.1 + Pester 5. Démos : Spring Boot 4.1 / Java 21 / Maven ; Angular 
 
 Le sandbox étant hors-ligne, l'outillage doit exister avant que DeepSeek commence.
 
-- [ ] **P1 — Dépôts GitHub publics** `A-Djihadi/devstation`, `A-Djihadi/demo-backend`, `A-Djihadi/demo-frontend` (avec ton accord explicite : action publique).
-- [ ] **P2 — Squelette `devstation`** : `go.mod` / `go.sum` résolus via une image `golang` (réseau autorisé) avec toutes les dépendances de la Stack ; `cmd/devstation/main.go` minimal qui affiche `devstation dev` ; `internal/doc.go` vide ; `.gitignore` (`.agent/`, `dist/`) ; `CLAUDE.md` (stack, `TEST_CMD`, conventions) ; sous-agents via `new_project.py --profile infra,backend` ; `Dockerfile.sandbox` = image `golang` + `pwsh` + module Pester 5 + `go mod download` ; `.github/workflows/ci.yml` (ubuntu : `TEST_CMD` ; windows-latest : `go test ./...` + Pester).
+- [x] **P1 — Dépôts GitHub publics** `A-Djihadi/devstation`, `A-Djihadi/demo-backend`, `A-Djihadi/demo-frontend` (avec ton accord explicite : action publique).
+- [x] **P2 — Squelette `devstation`** : `go.mod` / `go.sum` résolus via une image `golang` (réseau autorisé) avec toutes les dépendances de la Stack ; `cmd/devstation/main.go` minimal qui affiche `devstation dev` ; `internal/doc.go` vide ; `.gitignore` (`.agent/`, `dist/`) ; `CLAUDE.md` (stack, `TEST_CMD`, conventions) ; sous-agents via `new_project.py --profile infra,backend` ; `Dockerfile.sandbox` = image `golang` + `pwsh` + module Pester 5 + `go mod download` ; `.github/workflows/ci.yml` (ubuntu : `TEST_CMD` ; windows-latest : `go test ./...` + Pester).
   Vérification : `docker build` OK puis `TEST_CMD` passe dans le conteneur `--network none`.
-- [ ] **P3 — Squelette `demo-backend`** : Spring Initializr (Java 21, Maven, web, actuator, cloud-vault-config, validation) ; sandbox `maven:3-eclipse-temurin-21` + `mvn dependency:go-offline` ; `TEST_CMD="sh mvnw -o -q test"` ; CI GitHub Actions.
-- [ ] **P4 — Squelette `demo-frontend`** : `ng new demo-frontend --standalone --routing=false --style=css` puis `ng add @angular-architects/native-federation --type remote --port 4201` ; sandbox Node avec `node_modules` + Chromium headless ; `TEST_CMD="ng test --watch=false && ng build"` (Vitest + jsdom, pas de navigateur) ; CI.
+- [x] **P3 — Squelette `demo-backend`** : Spring Initializr (Java 21, Maven, web, actuator, cloud-vault-config, validation) ; sandbox `maven:3-eclipse-temurin-21` + `mvn dependency:go-offline` ; `TEST_CMD="sh mvnw -o -q test"` ; CI GitHub Actions.
+- [x] **P4 — Squelette `demo-frontend`** : `ng new demo-frontend --standalone --routing=false --style=css` puis `ng add @angular-architects/native-federation --type remote --port 4201` ; sandbox Node avec `node_modules` + Chromium headless ; `TEST_CMD="ng test --watch=false && ng build"` (Vitest + jsdom, pas de navigateur) ; CI.
 
 Lancement d'un lot (exemple `devstation`) : `/plan-tasks` dans le dépôt cible avec ce plan → `.agent/tasks.json`, puis
 `SANDBOX_IMAGE=devstation-sandbox:latest TEST_CMD="…" python -m agent.main --repo D:\code\devstation --tasks D:\code\devstation\.agent\tasks.json`.
@@ -61,7 +61,7 @@ Un lot est mergé entièrement avant de lancer le suivant.
 
 ---
 
-## Lot 1 — Fondations (9 tâches indépendantes ; T1.9 et T1.11 partent avec le lot 2)
+## Lot 1 — Fondations (9 tâches indépendantes ; T1.9 et T1.11 partent avec le lot 2) — ✅ mergé (#1–#9)
 
 ### T1.1 Profil d'équipe : chargement et validation
 **Fichiers :** créer `internal/profile/profile.go`, `internal/profile/profile_test.go`, `profiles/demo.yaml` (contenu du §5.1 de la spec, avec `proxy_auth: none` et `vault.addr: http://localhost:8200`).
@@ -196,7 +196,14 @@ func Defaults(p *Profile, home string) *Answers // Workspace = home\workspace\<p
 
 ---
 
-## Lot 2 — Windows, sources de versions, éditeurs de config (dépend du lot 1)
+## Lot 2 — Windows, sources de versions, éditeurs de config (dépend du lot 1) — ✅ mergé (#10–#26)
+
+> Exécuté en deux vagues, car des tâches d'un même paquet ne compilent pas séparément si l'une utilise les types d'une autre :
+> **2a** = T1.9, T1.11, T2.1, T2.10, T2.11, T2.12 ; **T2.1b** (ajoutée) = `Source.Resolve`, `Candidates`, `PickResolved`
+> (les releases de sécurité Python n'ont pas d'installeur Windows) ; **2b** = T2.2–T2.9, T2.13, T2.14.
+> Leçons appliquées aux lots suivants : lister dans `files` chaque fichier déjà mergé que la tâche consomme (le codeur
+> ne voit rien d'autre) ; préfixe imposé pour les identifiants non exportés des paquets partagés ; fixtures tirées des
+> vraies API (`internal/sources/testdata/`) ; vérification d'intégration de toutes les PR d'un lot avant merge.
 
 Chaque source implémente :
 ```go
