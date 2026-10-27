@@ -1,0 +1,90 @@
+# Profil DevStation commenté
+#
+# Ce fichier décrit un environnement de développement d'équipe : versions
+# d'outils, configuration réseau, dépôts du projet et coffre de secrets.
+# Copiez-le dans profiles/<equipe>.yaml, adaptez-le, puis lancez :
+#   .\setup.ps1 --profile profiles\<equipe>.yaml
+# Toutes les valeurs ci-dessous sont fictives (*.example.com).
+
+# Nom du profil (affiché par l'assistant).
+name: demo
+
+# Description libre du profil.
+description: Projet de démonstration Java + Angular
+
+# Valeurs par défaut de l'assistant.
+defaults:
+  # Rôles proposés par défaut. Valeurs possibles : back, front, fullstack.
+  roles: [fullstack]
+  # Éditeur par défaut. Valeurs possibles : vscode, intellij.
+  editor: vscode
+
+# Outils installés et versions proposées.
+tools:
+  # Java : versions proposées, version par défaut, distribution.
+  # distribution : temurin (Adoptium).
+  java:   { versions: ["21", "17"], default: "21", distribution: temurin }
+  # Node.js : versions proposées, version par défaut, gestion de npm.
+  # npm : bundled (fourni avec Node.js).
+  node:   { versions: ["22", "20"], default: "22", npm: "bundled" }
+  # Angular CLI : version par défaut.
+  angular_cli: { default: "20" }
+  # Python : version par défaut ; optional: true = non installé par défaut.
+  python: { default: "3.12", optional: true }
+  # Maven : version par défaut.
+  maven:  { default: "3.9" }
+  # Gradle : enabled: false = proposé mais désactivé par défaut.
+  gradle: { enabled: false }
+
+# Configuration réseau.
+network:
+  # Proxy HTTP(S). Exemple : http://proxy.example.com:8080
+  proxy: ""
+  # Authentification du proxy : none | kerberos (relais local px).
+  proxy_auth: none
+  # Hôtes à ne pas proxifier.
+  no_proxy: [localhost, 127.0.0.1, .example.com]
+  # Certificats d'entreprise (PEM), chemins relatifs au profil.
+  # Exemple : certs/corp-root.pem
+  ca_certs: []
+  # Dépôts Nexus internes (laisser vide pour utiliser les sources publiques).
+  nexus:
+    maven: ""                    # ex. https://nexus.example.com/repository/maven-public/
+    npm: ""                      # ex. https://nexus.example.com/repository/npm-group/
+    pypi: ""                     # ex. https://nexus.example.com/repository/pypi/simple/
+    containers: ""               # ex. https://nexus.example.com/repository/docker/
+
+# Configuration de git.
+git:
+  # Gestion des fins de ligne : "true" (Windows) | "false" | "input".
+  autocrlf: "true"
+
+# Dépôts du projet clonés par DevStation.
+# name : nom du dossier local ; url : URL du dépôt ;
+# roles : rôles pour lesquels le dépôt est cloné (back, front, fullstack).
+repos:
+  - { name: demo-backend,  url: https://github.com/A-Djihadi/demo-backend.git,  roles: [back, fullstack] }
+  - { name: demo-frontend, url: https://github.com/A-Djihadi/demo-frontend.git, roles: [front, fullstack] }
+
+# Extensions d'éditeur installées, par éditeur puis par rôle.
+editor_extensions:
+  vscode:
+    common: [eamodio.gitlens, redhat.vscode-yaml]
+    back:   [vscjava.vscode-java-pack, vmware.vscode-boot-dev-pack]
+    front:  [angular.ng-template, dbaeumer.vscode-eslint, esbenp.prettier-vscode]
+    python: [ms-python.python]
+  intellij:
+    common: []
+
+# Coffre de secrets (Vault).
+vault:
+  # Adresse du Vault de l'équipe. Exemple : https://vault.example.com
+  addr: http://localhost:8200   # Vault de demo local (compose de demo-backend)
+  # Méthode d'authentification : oidc (par défaut en entreprise) | token (démo).
+  auth: token
+  # Chemin de montage des secrets.
+  mount: secret
+  # Rôle Vault utilisé pour l'authentification OIDC (vide si non applicable).
+  role: ""
+  # Secrets à récupérer automatiquement (chemins dans le coffre).
+  secrets: []
