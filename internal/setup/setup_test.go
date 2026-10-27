@@ -82,6 +82,23 @@ func TestToolsFrontOnly(t *testing.T) {
 	}
 }
 
+// TestToolsPythonOnlyForPythonRole vérifie que Python n'est ajouté que si le
+// rôle python est présent, même quand une version python est renseignée.
+func TestToolsPythonOnlyForPythonRole(t *testing.T) {
+	a := &profile.Answers{
+		Roles:    []string{"back"},
+		Editor:   "vscode",
+		Versions: map[string]string{"python": "3.15.2"},
+	}
+	p := &profile.Profile{}
+	got := Tools(a, p)
+	for _, name := range got {
+		if name == "python" {
+			t.Fatalf("Tools = %v, python ne devrait pas être présent sans rôle python", got)
+		}
+	}
+}
+
 // TestBuildOrderAndDependencies vérifie l'ordre des étapes et les dépendances.
 func TestBuildOrderAndDependencies(t *testing.T) {
 	a := &profile.Answers{Roles: []string{"fullstack"}, Editor: "vscode", Repos: []string{"app"}}

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/A-Djihadi/devstation/internal/gitx"
 	"github.com/A-Djihadi/devstation/internal/install"
@@ -86,9 +87,6 @@ func Tools(a *profile.Answers, p *profile.Profile) []string {
 		want["node"] = true
 	}
 	if hasRole(a.Roles, "python") {
-		want["python"] = true
-	}
-	if _, ok := a.Versions["python"]; ok {
 		want["python"] = true
 	}
 	switch a.Editor {
@@ -254,8 +252,10 @@ func Build(o Options) ([]plan.Step, error) {
 				if state == nil {
 					return false, nil
 				}
-				_, ok := state.Installed("px", pxRelease.Version)
-				return ok, nil
+				if _, ok := state.Installed("px", pxRelease.Version); !ok {
+					return false, nil
+				}
+				return network.PxRunning("127.0.0.1:3128", 500*time.Millisecond), nil
 			},
 			Run: func(ctx context.Context, report func(msg string, done, total int64)) error {
 				if _, err := install.InstallZip(ctx, deps, "px", pxRelease, true, report); err != nil {
