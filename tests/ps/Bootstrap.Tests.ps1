@@ -85,6 +85,42 @@ Describe "Install-DevStation" {
     }
 }
 
+Describe "Add-UserPath" {
+    It "ajoute en tete quand absent" {
+        Mock -ModuleName DevStation.Bootstrap Get-UserPathValue { 'C:\a;C:\b' }
+        Mock -ModuleName DevStation.Bootstrap Set-UserPathValue { }
+
+        $result = Add-UserPath -Dir "C:\x"
+
+        $result | Should -BeTrue
+        Should -Invoke -ModuleName DevStation.Bootstrap Set-UserPathValue -Times 1 -Exactly -ParameterFilter {
+            $Value -eq 'C:\x;C:\a;C:\b'
+        }
+    }
+
+    It "ne modifie rien si deja present (casse et antislash final differents)" {
+        Mock -ModuleName DevStation.Bootstrap Get-UserPathValue { 'C:\a;c:\X\' }
+        Mock -ModuleName DevStation.Bootstrap Set-UserPathValue { }
+
+        $result = Add-UserPath -Dir "C:\x"
+
+        $result | Should -BeFalse
+        Should -Invoke -ModuleName DevStation.Bootstrap Set-UserPathValue -Times 0 -Exactly
+    }
+
+    It "ecrit la seule valeur quand le PATH utilisateur est vide" {
+        Mock -ModuleName DevStation.Bootstrap Get-UserPathValue { '' }
+        Mock -ModuleName DevStation.Bootstrap Set-UserPathValue { }
+
+        $result = Add-UserPath -Dir "C:\x"
+
+        $result | Should -BeTrue
+        Should -Invoke -ModuleName DevStation.Bootstrap Set-UserPathValue -Times 1 -Exactly -ParameterFilter {
+            $Value -eq 'C:\x'
+        }
+    }
+}
+
 Describe "Test-Prerequisites" {
     It "Ok faux si git est absent" {
         Mock -ModuleName DevStation.Bootstrap Get-Command {

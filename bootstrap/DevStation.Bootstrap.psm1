@@ -136,6 +136,93 @@ function Test-Prerequisites {
 
 <#
 .SYNOPSIS
+Lit la valeur brute du PATH utilisateur (HKCU), sans developper les variables.
+.DESCRIPTION
+[Environment]::GetEnvironmentVariable('Path','User') renvoie le PATH developpe
+(les %USERPROFILE%\... sont remplaces), ce qui figerait ces entrees si on le
+reecrivait. On lit donc la valeur brute dans le registre en preservant le type
+REG_EXPAND_SZ. Renvoie une chaine vide si la valeur est absente.
+#>
+function Get-UserPathValue {
+    $key = Get-Item -LiteralPath 'HKCU:\Environment'
+    return $key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+}
+
+<#
+.SYNOPSIS
+Ecrit la valeur du PATH utilisateur (HKCU uniquement) en preservant REG_EXPAND_SZ.
+.DESCRIPTION
+SetEnvironmentVariable reecrirait la valeur en REG_SZ et perdrait le type
+REG_EXPAND_SZ (les %USERPROFILE%\... ne seraient plus developpes). On ecrit donc
+directement dans le registre avec le type ExpandString. La diffusion de
+WM_SETTINGCHANGE est faite ensuite par la CLI.
+#>
+function Set-UserPathValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    Set-ItemProperty -LiteralPath 'HKCU:\Environment' -Name 'Path' -Value $Value -Type ExpandString
+}
+
+<#
+.SYNOPSIS
+Ajoute un dossier en tete du PATH utilisateur s'il n'y figure pas deja.
+.DESCRIPTION
+Renvoie $true si le PATH utilisateur a ete modifie, $false sinon.
+#>
+function Add-UserPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Dir
+    )
+
+    $current = Get-UserPathValue
+    if ($null -eq $current) { $current = "" }
+
+    $normalized = $Dir.TrimEnd('\')
+    $alreadyPresent = $false
+    foreach ($entry in ($current -split ';')) {
+        if ($entry.TrimEnd('\') -ieq $normalized) {
+            $alreadyPresent = $true
+            break
+        }
+    }
+
+    $changed = $false
+    if (-not $alreadyPresent) {
+        if ($current -eq "") {
+            $newValue = $Dir
+        }
+        else {
+            $newValue = "$Dir;$current"
+        }
+        Set-UserPathValue -Value $newValue
+        $changed = $true
+    }
+
+    $sessionPresent = $false
+    foreach ($entry in ($env:Path -split ';')) {
+        if ($entry.TrimEnd('\') -ieq $normalized) {
+            $sessionPresent = $true
+            break
+        }
+    }
+    if (-not $sessionPresent) {
+        if ($env:Path) {
+            $env:Path = "$Dir;$env:Path"
+        }
+        else {
+            $env:Path = $Dir
+        }
+    }
+
+    return $changed
+}
+
+<#
+.SYNOPSIS
 Telecharge l'executable DevStation, verifie son empreinte et renvoie son chemin.
 #>
 function Install-DevStation {
@@ -229,4 +316,4 @@ function Start-BootstrapPx {
     return "http://127.0.0.1:3128"
 }
 
-Export-ModuleMember -Function Get-DevStationUrls, Get-ExpectedHash, Test-FileHash256, Invoke-Download, Test-Prerequisites, Install-DevStation, Start-BootstrapPx
+Export-ModuleMember -Function Get-DevStationUrls, Get-ExpectedHash, Test-FileHash256, Invoke-Download, Test-Prerequisites, Install-DevStation, Start-BootstrapPx, Add-UserPath

@@ -55,6 +55,10 @@ if ($Kerberos) {
 
 $exe = Install-DevStation -Version $DevStationVersion -BinDir "$env:LOCALAPPDATA\DevStation\bin" -Proxy $Proxy
 
+if (Add-UserPath -Dir "$env:LOCALAPPDATA\DevStation\bin") {
+    Write-Host "devstation a été ajouté à votre PATH : ouvrez un nouveau terminal pour l'utiliser."
+}
+
 $hasProfile = $false
 foreach ($arg in $Rest) {
     if ($arg -eq "--profile") { $hasProfile = $true }
