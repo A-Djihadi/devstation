@@ -25,5 +25,59 @@
     "digest": "sha256:c5c8e30910c71b03a59701aec0ba9cbba3b0da87aa338de173a93cea73e4035f"
    }
   ]
+ },
+ {
+  "tag_name": "v0.12.0",
+  "prerelease": true,
+  "draft": false,
+  "assets": [
+   {
+    "name": "px-v0.12.0-windows-amd64-wheels.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.12.0/px-v0.12.0-windows-amd64-wheels.zip",
+    "digest": "sha256:4d4b78f915060e2c11fa4e3229f2a1c3550da947edd595bce9c4cc87880d9107"
+   },
+   {
+    "name": "px-v0.12.0-windows-amd64-wheels.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.12.0/px-v0.12.0-windows-amd64-wheels.zip.sha256",
+    "digest": "sha256:db925247b26e7e35e30fdb517fd29aa8d75efee529ade2f5f2f3c60022b94176"
+   },
+   {
+    "name": "px-v0.12.0-windows-amd64.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.12.0/px-v0.12.0-windows-amd64.zip",
+    "digest": "sha256:3685e07eb888a559521b90464d7491cc11caa9173cac5d9dbe2d2e6ec055758e"
+   },
+   {
+    "name": "px-v0.12.0-windows-amd64.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.12.0/px-v0.12.0-windows-amd64.zip.sha256",
+    "digest": "sha256:fd2d2614dc166ba1e1ffc055c3a25d020e13dd2c409868f32bc0840a85253b78"
+   }
+  ]
+ },
+ {
+  "tag_name": "v0.11.0",
+  "prerelease": false,
+  "draft": false,
+  "assets": [
+   {
+    "name": "px-v0.11.0-windows-amd64-wheels.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.11.0/px-v0.11.0-windows-amd64-wheels.zip",
+    "digest": "sha256:5987d7ff77fd000a49065e855ec84ec72bb54bea38f26f5777d0aeea20732e76"
+   },
+   {
+    "name": "px-v0.11.0-windows-amd64-wheels.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.11.0/px-v0.11.0-windows-amd64-wheels.zip.sha256",
+    "digest": "sha256:a8ef88fe04b967390dddd4efda2f7d970bad4cf0b662182f145ad212a74dd957"
+   },
+   {
+    "name": "px-v0.11.0-windows-amd64.zip",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.11.0/px-v0.11.0-windows-amd64.zip",
+    "digest": "sha256:4e69f56f5bad9878190a5e82b5ea18857d15ef34a04256a624a40b4458e96417"
+   },
+   {
+    "name": "px-v0.11.0-windows-amd64.zip.sha256",
+    "browser_download_url": "https://github.com/genotrance/px/releases/download/v0.11.0/px-v0.11.0-windows-amd64.zip.sha256",
+    "digest": "sha256:9e8101f53765d061bc45aa3937a24e44e495dad8051ad22834bb8251ad780b98"
+   }
+  ]
  }
 ]
