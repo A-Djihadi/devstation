@@ -238,7 +238,12 @@ Chaque source prend `baseURL` en paramètre et est testée sur un fixture JSON/t
 
 ---
 
-## Lot 3 — Installeurs, réseau, git, Vault (dépend du lot 2)
+## Lot 3 — Installeurs, réseau, git, Vault (dépend du lot 2) — ✅ mergé (#27–#39)
+
+> Exécuté en **3a** (T3.1 cœur des installeurs, T3.0 ajoutée : mode interactif du runner pour `vault login`, T3.11 git)
+> puis **3b** (T3.2–T3.10, T3.12). `install.Steps` a été déplacé dans un nouveau paquet `internal/setup` (lot 4) :
+> `network` importe `install`, le laisser dans `install` créait un cycle. Bug réel trouvé par les tests : le cache de
+> téléchargement n'a pas d'extension et Windows refuse d'exécuter un installeur sans `.exe` (copie avant exécution).
 
 ```go
 // internal/install/install.go (T3.1)
@@ -275,7 +280,12 @@ Tests de chaque installeur avec `winenv.Fake`, `execx.Fake` et un serveur httpte
 
 ---
 
-## Lot 4 — Diagnostic, assistant, commandes (dépend du lot 3)
+## Lot 4 — Diagnostic, assistant, commandes (dépend du lot 3) — ✅ mergé (#40–#46)
+
+> **4a** : orchestration (`internal/setup`), doctor, assistant, progression ; **4b** : `app.go` + commande `setup`
+> (avec `--dry-run`, essayé sous Windows contre les vraies API) ; **4c** : doctor/use/list/version et
+> repos/uninstall/secrets/token helper. Faille bloquée en revue : `uninstall <outil>` sans validation aurait permis
+> `uninstall ..\..` → suppression de %LOCALAPPDATA% (nom désormais validé contre l'état).
 
 | Tâche | Fichiers | Attendu testé |
 |---|---|---|
@@ -286,7 +296,10 @@ Tests de chaque installeur avec `winenv.Fake`, `execx.Fake` et un serveur httpte
 | T4.5 | `cmd/devstation/tools.go`, test | `doctor`, `use <outil> <version>`, `list [outil]`, `version` |
 | T4.6 | `cmd/devstation/manage.go`, test | `repos sync`, `uninstall [outil|--all]` (Restore* puis suppression des dossiers et entrées PATH, `state.json` mis à jour), `secrets list|get [--copy]`, `vault-token-helper` (caché) |
 
-## Lot 5 — Démarrage, livraison, documentation (dépend du lot 4)
+## Lot 5 — Démarrage, livraison, documentation (dépend du lot 4) — ✅ mergé (#47–#51)
+
+> Ajouts : finitions de la CLI (aide en français, messages), BOM UTF-8 du module PowerShell (accents sous PS 5.1),
+> ajout de `devstation.exe` au PATH utilisateur en préservant `REG_EXPAND_SZ` (vérifié sur un vrai poste).
 
 | Tâche | Fichiers | Attendu testé |
 |---|---|---|
