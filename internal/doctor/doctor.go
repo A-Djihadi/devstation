@@ -101,6 +101,13 @@ func checkTools(ctx context.Context, o Options) []Check {
 			checks = append(checks, check)
 			continue
 		}
+		if got == "" {
+			check.Status = Fail
+			check.Detail = "outil introuvable ou non exécutable"
+			check.Fix = "relancer devstation setup"
+			checks = append(checks, check)
+			continue
+		}
 		want := ""
 		if o.Answers != nil {
 			want = o.Answers.Versions[name]
