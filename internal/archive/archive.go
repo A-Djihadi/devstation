@@ -152,6 +152,9 @@ func Untar(src, dest string, stripTop bool) error {
 
 // safeJoin joint name a dest et verifie que le resultat reste dans dest.
 func safeJoin(dest, name string) (string, error) {
+	if strings.HasPrefix(name, "/") || strings.HasPrefix(name, `\`) {
+		return "", fmt.Errorf("%w : %q", ErrUnsafePath, name)
+	}
 	if filepath.IsAbs(name) || isWindowsAbs(name) {
 		return "", fmt.Errorf("%w : %q", ErrUnsafePath, name)
 	}
