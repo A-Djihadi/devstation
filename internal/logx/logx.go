@@ -11,12 +11,16 @@ import (
 )
 
 // motifs de secrets connus, masqués même s'ils n'ont pas été enregistrés.
+// Les motifs à clé/valeur conservent la clé et ne masquent que la valeur.
 var patterns = []*regexp.Regexp{
 	regexp.MustCompile(`ghp_[A-Za-z0-9]+`),
 	regexp.MustCompile(`github_pat_[A-Za-z0-9_]+`),
 	regexp.MustCompile(`hvs\.[A-Za-z0-9._-]+`),
-	regexp.MustCompile(`_authToken=[^\s&]+`),
-	regexp.MustCompile(`password=[^\s&]+`),
+	regexp.MustCompile(`(?i)_authToken=[^\s&]+`),
+	regexp.MustCompile(`(?i)password\s*[=:]\s*\S+`),
+	regexp.MustCompile(`(?i)"password"\s*:\s*"[^"]*"`),
+	regexp.MustCompile(`(?i)authorization:\s*bearer\s+\S+`),
+	regexp.MustCompile(`(?i)(token|secret)\s*=\s*\S+`),
 }
 
 // Logger écrit des lignes dans un fichier en masquant les secrets connus.
@@ -38,6 +42,18 @@ func New(path string) (*Logger, error) {
 		return nil, err
 	}
 	return &Logger{f: f}, nil
+}
+
+// Close ferme le fichier de journal.
+func (l *Logger) Close() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.f == nil {
+		return nil
+	}
+	err := l.f.Close()
+	l.f = nil
+	return err
 }
 
 // AddSecret enregistre une valeur à masquer dans les écritures suivantes.
@@ -73,6 +89,9 @@ func Redact(s string, secrets []string) string {
 	for _, re := range patterns {
 		s = re.ReplaceAllStringFunc(s, func(m string) string {
 			if i := strings.IndexByte(m, '='); i >= 0 {
+				return m[:i+1] + "***"
+			}
+			if i := strings.IndexByte(m, ':'); i >= 0 {
 				return m[:i+1] + "***"
 			}
 			return "***"

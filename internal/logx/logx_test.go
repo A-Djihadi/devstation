@@ -28,6 +28,22 @@ func TestRedactNpmAuthToken(t *testing.T) {
 	}
 }
 
+func TestRedactPasswordCaseAndJSON(t *testing.T) {
+	for _, in := range []string{"Password=abc", "PASSWORD: abc", `{"password":"abc"}`} {
+		got := Redact(in, nil)
+		if strings.Contains(got, "abc") {
+			t.Fatalf("mot de passe non masqué pour %q : %q", in, got)
+		}
+	}
+}
+
+func TestRedactBearer(t *testing.T) {
+	got := Redact("Authorization: Bearer xyz", nil)
+	if strings.Contains(got, "xyz") {
+		t.Fatalf("jeton Bearer non masqué : %q", got)
+	}
+}
+
 func TestLoggerNeverWritesSecret(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "test.log")
@@ -38,7 +54,7 @@ func TestLoggerNeverWritesSecret(t *testing.T) {
 	l.AddSecret("s3cr3t")
 	l.Printf("mot de passe : %s", "s3cr3t")
 	l.Printf("token ghp_abcdef123")
-	if err := l.f.Close(); err != nil {
+	if err := l.Close(); err != nil {
 		t.Fatalf("close: %v", err)
 	}
 	data, err := os.ReadFile(path)
