@@ -17,15 +17,6 @@ var angularNodeRanges = map[int]string{
 	22: "^22.22.3 || ^24.15.0 || >=26.0.0",
 }
 
-// angularNodeMessages associe chaque version majeure d'Angular au message
-// d'erreur affiché, reprenant la plage sous forme abrégée.
-var angularNodeMessages = map[int]string{
-	19: "Angular 19 exige Node ^18.19.1 || ^20.11.1 || >=22.0.0",
-	20: "Angular 20 exige Node ^20.19 || ^22.12 || ^24",
-	21: "Angular 21 exige Node ^20.19 || ^22.12 || ^24",
-	22: "Angular 22 exige Node ^22.22.3 || ^24.15.0 || >=26.0.0",
-}
-
 // AngularNode vérifie que la version de Node.js fournie satisfait la plage
 // exigée par la version majeure d'Angular indiquée. Elle retourne nil si la
 // combinaison est compatible ou si le majeur Angular est inconnu (pas de
@@ -37,9 +28,6 @@ func AngularNode(angularMajor int, nodeVersion string) error {
 	}
 	if satisfiesAny(nodeVersion, rng) {
 		return nil
-	}
-	if msg, ok := angularNodeMessages[angularMajor]; ok {
-		return fmt.Errorf("%s", msg)
 	}
 	return fmt.Errorf("Angular %d exige Node %s", angularMajor, rng)
 }

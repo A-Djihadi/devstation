@@ -15,7 +15,20 @@ func TestAngular20Node18Rejected(t *testing.T) {
 	if err == nil {
 		t.Fatal("attendu incompatible, obtenu nil")
 	}
-	want := "Angular 20 exige Node ^20.19 || ^22.12 || ^24"
+	want := "Angular 20 exige Node ^20.19.0 || ^22.12.0 || >=24.0.0"
+	if err.Error() != want {
+		t.Fatalf("message attendu %q, obtenu %q", want, err.Error())
+	}
+}
+
+// TestErrorMessageUsesExactRange vérifie que le message d'erreur reprend la
+// plage exacte déclarée pour Angular 20.
+func TestErrorMessageUsesExactRange(t *testing.T) {
+	err := AngularNode(20, "18.0.0")
+	if err == nil {
+		t.Fatal("attendu incompatible, obtenu nil")
+	}
+	want := "Angular 20 exige Node ^20.19.0 || ^22.12.0 || >=24.0.0"
 	if err.Error() != want {
 		t.Fatalf("message attendu %q, obtenu %q", want, err.Error())
 	}
