@@ -50,6 +50,45 @@ func TestStringMasksSecret(t *testing.T) {
 	}
 }
 
+// TestInteractiveExitCode vérifie que le code de sortie est renseigné pour une
+// commande interactive et qu'une erreur non nulle est retournée.
+func TestInteractiveExitCode(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("test réservé à Linux")
+	}
+	ctx := context.Background()
+	res, err := OS().Run(ctx, Cmd{Name: "sh", Args: []string{"-c", "exit 3"}, Interactive: true})
+	if err == nil {
+		t.Fatal("une erreur était attendue pour un code de sortie non nul")
+	}
+	if res.Code != 3 {
+		t.Fatalf("code de sortie attendu 3, obtenu %d", res.Code)
+	}
+	if res.Stdout != "" || res.Stderr != "" {
+		t.Fatalf("les sorties doivent rester vides en mode interactif : %+v", res)
+	}
+}
+
+// TestInteractiveRejectsStdin vérifie qu'une commande interactive avec Stdin
+// non vide est refusée sans être lancée.
+func TestInteractiveRejectsStdin(t *testing.T) {
+	ctx := context.Background()
+	_, err := OS().Run(ctx, Cmd{Name: "sh", Args: []string{"-c", "exit 0"}, Stdin: "x", Interactive: true})
+	if err == nil {
+		t.Fatal("une erreur était attendue quand Stdin est fourni en mode interactif")
+	}
+}
+
+// TestStringMarksInteractive vérifie que String() suffixe les commandes interactives.
+func TestStringMarksInteractive(t *testing.T) {
+	c := Cmd{Name: "vault", Args: []string{"login", "-method=oidc"}, Interactive: true}
+	got := c.String()
+	want := "vault login -method=oidc (interactif)"
+	if got != want {
+		t.Fatalf("String() = %q, attendu %q", got, want)
+	}
+}
+
 // TestFakeRecordsCalls vérifie que Fake enregistre les appels et renvoie les réponses.
 func TestFakeRecordsCalls(t *testing.T) {
 	f := &Fake{Responses: map[string]Result{
