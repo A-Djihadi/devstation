@@ -14,7 +14,7 @@ flux (source → téléchargement vérifié → extraction → jonction `current
 
 **Stack :** Go (version stable courante, épinglée en préparation), cobra, charmbracelet huh / lipgloss /
 bubbles / bubbletea, gopkg.in/yaml.v3, golang.org/x/sys/windows, github.com/danieljoos/wincred,
-PowerShell 5.1 + Pester 5. Démos : Spring Boot 3 / Java 21 / Maven ; Angular + Native Federation.
+PowerShell 5.1 + Pester 5. Démos : Spring Boot 4.1 / Java 21 / Maven ; Angular 22 + Native Federation 22, tests Vitest + jsdom.
 
 **Spec :** `docs/superpowers/specs/2026-10-27-devstation-design.md`
 
@@ -52,8 +52,8 @@ Le sandbox étant hors-ligne, l'outillage doit exister avant que DeepSeek commen
 - [ ] **P1 — Dépôts GitHub publics** `A-Djihadi/devstation`, `A-Djihadi/demo-backend`, `A-Djihadi/demo-frontend` (avec ton accord explicite : action publique).
 - [ ] **P2 — Squelette `devstation`** : `go.mod` / `go.sum` résolus via une image `golang` (réseau autorisé) avec toutes les dépendances de la Stack ; `cmd/devstation/main.go` minimal qui affiche `devstation dev` ; `internal/doc.go` vide ; `.gitignore` (`.agent/`, `dist/`) ; `CLAUDE.md` (stack, `TEST_CMD`, conventions) ; sous-agents via `new_project.py --profile infra,backend` ; `Dockerfile.sandbox` = image `golang` + `pwsh` + module Pester 5 + `go mod download` ; `.github/workflows/ci.yml` (ubuntu : `TEST_CMD` ; windows-latest : `go test ./...` + Pester).
   Vérification : `docker build` OK puis `TEST_CMD` passe dans le conteneur `--network none`.
-- [ ] **P3 — Squelette `demo-backend`** : Spring Initializr (Java 21, Maven, web, actuator, cloud-vault-config, validation) ; sandbox `maven:3-eclipse-temurin-21` + `mvn dependency:go-offline` ; `TEST_CMD="./mvnw -o -q test"` ; CI GitHub Actions.
-- [ ] **P4 — Squelette `demo-frontend`** : `ng new demo-frontend --standalone --routing=false --style=css` puis `ng add @angular-architects/native-federation --type remote --port 4201` ; sandbox Node avec `node_modules` + Chromium headless ; `TEST_CMD="npx ng test --watch=false --browsers=ChromeHeadless"` ; CI.
+- [ ] **P3 — Squelette `demo-backend`** : Spring Initializr (Java 21, Maven, web, actuator, cloud-vault-config, validation) ; sandbox `maven:3-eclipse-temurin-21` + `mvn dependency:go-offline` ; `TEST_CMD="sh mvnw -o -q test"` ; CI GitHub Actions.
+- [ ] **P4 — Squelette `demo-frontend`** : `ng new demo-frontend --standalone --routing=false --style=css` puis `ng add @angular-architects/native-federation --type remote --port 4201` ; sandbox Node avec `node_modules` + Chromium headless ; `TEST_CMD="ng test --watch=false && ng build"` (Vitest + jsdom, pas de navigateur) ; CI.
 
 Lancement d'un lot (exemple `devstation`) : `/plan-tasks` dans le dépôt cible avec ce plan → `.agent/tasks.json`, puis
 `SANDBOX_IMAGE=devstation-sandbox:latest TEST_CMD="…" python -m agent.main --repo D:\code\devstation --tasks D:\code\devstation\.agent\tasks.json`.
@@ -169,7 +169,7 @@ func Execute(ctx context.Context, steps []Step, onEvent func(Event)) (Summary, e
 
 ### T1.8 Compatibilité Angular ↔ Node
 **Fichiers :** `internal/compat/compat.go`, `internal/compat/compat_test.go`.
-**Produit :** `func AngularNode(angularMajor int, nodeVersion string) error` (nil si compatible, sinon message « Angular 20 exige Node ^20.19 || ^22.12 || ^24 ») ; table en dur, vérifiée contre angular.dev/reference/versions : 19 → `^18.19.1 || ^20.11.1 || ^22`, 20 → `^20.19 || ^22.12 || ^24`, 21 → `^20.19 || ^22.12 || ^24`. Majeur inconnu ⇒ nil (pas de blocage).
+**Produit :** `func AngularNode(angularMajor int, nodeVersion string) error` (nil si compatible, sinon message « Angular 20 exige Node ^20.19 || ^22.12 || ^24 ») ; table en dur, vérifiée contre angular.dev/reference/versions : 19 → `^18.19.1 || ^20.11.1 || ^22`, 20 → `^20.19 || ^22.12 || ^24`, 21 → `^20.19 || ^22.12 || ^24`, 22 → `^22.22 || ^24.13` (à confirmer sur angular.dev). Majeur inconnu ⇒ nil (pas de blocage).
 **Tests :** `TestAngular20Node2212OK` · `TestAngular20Node18Rejected` · `TestUnknownAngularMajorAllowed`.
 
 ### T1.9 Thème et rendu texte
@@ -295,7 +295,7 @@ Tests de chaque installeur avec `winenv.Fake`, `execx.Fake` et un serveur httpte
 | Tâche | Fichiers | Attendu testé |
 |---|---|---|
 | B1 | `GreetingService.java`, `GreetingController.java`, `GreetingControllerTest.java` | `GET /api/greeting?name=Ana` ⇒ `{"message":"Bonjour, Ana","secretLoaded":false}` ; `name` absent ⇒ `"Bonjour, inconnu"` ; `name` > 50 caractères ⇒ 400 ; CORS `http://localhost:4201` (`@WebMvcTest`). |
-| B2 | `application.yml`, `VaultSecretHolder.java`, `VaultSecretHolderTest.java` | Spring Cloud Vault, `spring.cloud.vault.enabled=${VAULT_ENABLED:false}`, secret `secret/demo-backend` clé `api-key` ; `secretLoaded=true` quand la propriété est présente (test avec propriété injectée, Vault désactivé). |
+| B2 | `src/main/resources/application.properties` (déjà : `spring.cloud.vault.enabled=${VAULT_ENABLED:false}`, port 8081), `VaultSecretHolder.java`, `VaultSecretHolderTest.java` | Spring Cloud Vault, `spring.cloud.vault.enabled=${VAULT_ENABLED:false}`, secret `secret/demo-backend` clé `api-key` ; `secretLoaded=true` quand la propriété est présente (test avec propriété injectée, Vault désactivé). |
 | B3 | `Containerfile`, `compose.yaml`, `vault/init.sh` | multi-étapes Temurin 21 ; services `vault` (`hashicorp/vault`, mode dev, token fictif `devstation-demo`), `vault-init` (écrit `secret/demo-backend api-key=demo-not-a-secret`), `backend` (`VAULT_ENABLED=true`), `frontend` (contexte `../demo-frontend`, port `8080`). Vérifié par la CI (`podman compose config` / build) et manuellement. |
 
 ## Dépôt `demo-frontend` (après P4)
@@ -303,7 +303,7 @@ Tests de chaque installeur avec `winenv.Fake`, `execx.Fake` et un serveur httpte
 | Tâche | Fichiers | Attendu testé |
 |---|---|---|
 | F1 | `src/app/greeting.service.ts`, `src/app/greeting.component.ts`, `src/app/greeting.component.spec.ts` | appelle `/api/greeting?name=<saisie>` (HttpClient), affiche `message` et « Secret Vault chargé : oui/non » ; état d'erreur « Backend injoignable » ; tests avec `HttpTestingController`. |
-| F2 | `federation.config.js`, `proxy.conf.json`, `src/app/app.config.ts` | expose `./Greeting` (composant F1) ; `ng serve` port 4201 avec proxy `/api` → `http://localhost:8081`. Test : `federation.config.js` exporte `./Greeting` (spec Jasmine qui lit le manifeste généré, ou relecture). |
+| F2 | `federation.config.mjs`, `proxy.conf.json`, `src/app/app.config.ts` | expose `./Greeting` (composant F1) ; `ng serve` port 4201 avec proxy `/api` → `http://localhost:8081`. Test : `federation.config.mjs` exporte `./Greeting` (spec Jasmine qui lit le manifeste généré, ou relecture). |
 | F3 | `Containerfile`, `nginx.conf` | build Node → nginx ; `location /api/ { proxy_pass http://backend:8081; }` ; sert l'app sur 8080. Vérifié par la CI et `podman compose up`. |
 
 ---
