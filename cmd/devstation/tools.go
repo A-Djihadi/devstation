@@ -218,7 +218,7 @@ func newToolsDoctorCmd() *cobra.Command {
 			a, err := profile.LoadAnswers(app.AnswersPath)
 			if err != nil {
 				fmt.Fprintln(cmd.OutOrStdout(), "Aucune installation trouvée : lancez d'abord devstation setup")
-				return errNoSteps
+				return exitCode(1)
 			}
 			deps, err := app.Deps(p.Network)
 			if err != nil {
@@ -233,7 +233,7 @@ func newToolsDoctorCmd() *cobra.Command {
 				Probe:      toolsProbe,
 			})
 			if code != 0 {
-				return errNoSteps
+				return exitCode(code)
 			}
 			return nil
 		},
@@ -321,6 +321,10 @@ func newToolsListCmd() *cobra.Command {
 				return toolsListAvailable(cmd.Context(), cmd.OutOrStdout(), DefaultSources(deps.DL, p)[tool], tool)
 			}
 
+			if app.State == nil || len(app.State.Installs) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "Aucun outil installé. Lancez devstation setup.")
+				return nil
+			}
 			toolsList(cmd.OutOrStdout(), app.State, tool)
 			return nil
 		},
