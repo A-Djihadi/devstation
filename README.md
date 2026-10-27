@@ -80,7 +80,7 @@ Démo locale : `podman compose up` dans le dépôt `demo-backend` démarre un Va
 Après l'installation :
 
 ```powershell
-cd %USERPROFILE%\workspace\demo\demo-backend
+cd $env:USERPROFILE\workspace\demo\demo-backend
 podman compose up --build
 ```
 
