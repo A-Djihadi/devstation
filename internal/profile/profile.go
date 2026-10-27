@@ -166,6 +166,11 @@ func Load(path string) (*Profile, error) {
 		return nil, err
 	}
 	p.Dir = filepath.Dir(abs)
+	for i, c := range p.Network.CACerts {
+		if c != "" && !filepath.IsAbs(c) {
+			p.Network.CACerts[i] = filepath.Join(p.Dir, c)
+		}
+	}
 	if err := p.Validate(); err != nil {
 		return nil, err
 	}

@@ -72,6 +72,23 @@ func TestDefaultNotInVersions(t *testing.T) {
 	}
 }
 
+func TestCACertsResolvedFromProfileDir(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "p.yaml")
+	content := "name: x\nnetwork:\n  ca_certs: [certs/corp.pem]\n"
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	p, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	want := filepath.Join(dir, "certs", "corp.pem")
+	if len(p.Network.CACerts) != 1 || p.Network.CACerts[0] != want {
+		t.Errorf("CACerts = %v, attendu [%s]", p.Network.CACerts, want)
+	}
+}
+
 func TestReposForRoles(t *testing.T) {
 	p, err := Load(filepath.Join("..", "..", "profiles", "demo.yaml"))
 	if err != nil {
