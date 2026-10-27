@@ -191,3 +191,61 @@ func TestVaultTokenHelperIsHidden(t *testing.T) {
 		t.Error("vault-token-helper devrait être cachée")
 	}
 }
+
+// TestUninstallRejectsTraversal vérifie qu'un nom d'outil invalide ou non
+// installé est refusé sans rien modifier.
+func TestUninstallRejectsTraversal(t *testing.T) {
+	cases := []string{"..", "../..", `..\..`, `C:\x`, "inconnu"}
+	for _, tool := range cases {
+		t.Run(tool, func(t *testing.T) {
+			d, fake, _ := manageTestDeps(t)
+			javaDir := filepath.Join(d.Root, "java")
+			if err := os.MkdirAll(javaDir, 0o755); err != nil {
+				t.Fatal(err)
+			}
+			fake.Vars["Path"] = filepath.Join(javaDir, "current", "bin") + ";C:\\Windows"
+			fake.Vars["JAVA_HOME"] = javaDir
+			d.State.Installs = []state.Install{{Tool: "java", Version: "21", Path: javaDir}}
+			d.State.Active["java"] = "21"
+
+			parent := filepath.Dir(d.Root)
+			before, err := os.ReadDir(parent)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pathBefore := fake.Vars["Path"]
+
+			var out bytes.Buffer
+			err = manageUninstall(context.Background(), &out, d, tool, false)
+			if err == nil {
+				t.Fatalf("erreur attendue pour %q", tool)
+			}
+			if !strings.Contains(err.Error(), "outil inconnu") {
+				t.Errorf("message inattendu : %v", err)
+			}
+
+			after, err := os.ReadDir(parent)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(after) != len(before) {
+				t.Errorf("dossier parent modifié : %d entrées avant, %d après", len(before), len(after))
+			}
+			if _, err := os.Stat(javaDir); err != nil {
+				t.Errorf("dossier java modifié : %v", err)
+			}
+			if fake.Vars["Path"] != pathBefore {
+				t.Errorf("Path modifié : %q", fake.Vars["Path"])
+			}
+			if fake.Vars["JAVA_HOME"] != javaDir {
+				t.Errorf("JAVA_HOME modifié : %q", fake.Vars["JAVA_HOME"])
+			}
+			if fake.Broadcasts != 0 {
+				t.Errorf("notifications attendues : 0, obtenues : %d", fake.Broadcasts)
+			}
+			if _, ok := d.State.Installed("java", "21"); !ok {
+				t.Error("état a perdu java")
+			}
+		})
+	}
+}

@@ -80,6 +80,53 @@ func manageCleanPath(d install.Deps, tool string) error {
 	return nil
 }
 
+// manageValidToolName indique si name peut désigner un outil installé : nom
+// non vide, sans séparateur de chemin ni ':', différent de "." et "..".
+func manageValidToolName(name string) bool {
+	if name == "" || name == "." || name == ".." {
+		return false
+	}
+	if strings.ContainsAny(name, `/\:`) {
+		return false
+	}
+	return true
+}
+
+// manageInstalledTools retourne les noms d'outils distincts présents dans
+// l'état, dans l'ordre d'enregistrement.
+func manageInstalledTools(st *state.State) []string {
+	var out []string
+	if st == nil {
+		return out
+	}
+	seen := map[string]bool{}
+	for _, inst := range st.Installs {
+		if !seen[inst.Tool] {
+			seen[inst.Tool] = true
+			out = append(out, inst.Tool)
+		}
+	}
+	return out
+}
+
+// manageCheckTool valide que tool désigne un outil réellement installé. Elle
+// retourne une erreur citant les outils installés sinon.
+func manageCheckTool(st *state.State, tool string) error {
+	installed := manageInstalledTools(st)
+	if manageValidToolName(tool) {
+		for _, t := range installed {
+			if t == tool {
+				return nil
+			}
+		}
+	}
+	list := "aucun"
+	if len(installed) > 0 {
+		list = strings.Join(installed, ", ")
+	}
+	return fmt.Errorf("outil inconnu : %s (outils installés : %s)", tool, list)
+}
+
 // manageRemoveTool retire un outil du Path, des variables d'environnement, du
 // disque et de l'état.
 func manageRemoveTool(d install.Deps, tool string) error {
@@ -154,18 +201,13 @@ func manageUninstall(ctx context.Context, out io.Writer, d install.Deps, tool st
 
 	var tools []string
 	if all {
-		if d.State != nil {
-			seen := map[string]bool{}
-			for _, inst := range d.State.Installs {
-				if !seen[inst.Tool] {
-					seen[inst.Tool] = true
-					tools = append(tools, inst.Tool)
-				}
-			}
-		}
+		tools = manageInstalledTools(d.State)
 	} else {
 		if tool == "" {
 			return errors.New("outil manquant : précisez un outil ou --all")
+		}
+		if err := manageCheckTool(d.State, tool); err != nil {
+			return err
 		}
 		tools = []string{tool}
 	}
