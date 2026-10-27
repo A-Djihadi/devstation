@@ -6,6 +6,7 @@ package sources
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,6 +37,10 @@ type Source interface {
 	Name() string
 	// Releases retourne les versions publiées.
 	Releases(ctx context.Context) ([]Release, error)
+	// Resolve complète une release choisie (URL de téléchargement Windows x64,
+	// Checksum). Elle retourne une erreur satisfaisant errors.Is(err,
+	// ErrNoRelease) quand cette version n'a rien à télécharger pour Windows x64.
+	Resolve(ctx context.Context, r Release) (Release, error)
 }
 
 // Fetcher récupère des ressources distantes (JSON ou texte).
@@ -121,16 +126,14 @@ func matchesPrefix(version, want string) bool {
 	return strings.HasPrefix(v, w+".")
 }
 
-// Pick sélectionne une version parmi rs selon want :
-//   - "" ou "latest" : la version la plus récente ;
-//   - "lts" : la version LTS la plus récente ;
-//   - "21" ou "21.0.4" : la plus récente correspondant au préfixe de segments.
+// Candidates retourne toutes les releases qui correspondent à want selon les
+// mêmes règles que Pick :
+//   - "" ou "latest" : toutes les versions ;
+//   - "lts" : les versions LTS ;
+//   - "21" ou "21.0.4" : celles correspondant au préfixe de segments.
 //
-// Elle retourne ErrNoRelease si aucune version ne correspond.
-func Pick(rs []Release, want string) (Release, error) {
-	if len(rs) == 0 {
-		return Release{}, ErrNoRelease
-	}
+// Le résultat est trié par version décroissante.
+func Candidates(rs []Release, want string) []Release {
 	sorted := make([]Release, len(rs))
 	copy(sorted, rs)
 	SortDesc(sorted)
@@ -138,21 +141,56 @@ func Pick(rs []Release, want string) (Release, error) {
 	w := strings.ToLower(strings.TrimSpace(want))
 	switch w {
 	case "", "latest":
-		return sorted[0], nil
+		return sorted
 	case "lts":
+		out := make([]Release, 0, len(sorted))
 		for _, r := range sorted {
 			if r.LTS {
-				return r, nil
+				out = append(out, r)
 			}
 		}
-		return Release{}, ErrNoRelease
+		return out
 	}
+	out := make([]Release, 0, len(sorted))
 	for _, r := range sorted {
 		if matchesPrefix(r.Version, want) {
-			return r, nil
+			out = append(out, r)
 		}
 	}
-	return Release{}, ErrNoRelease
+	return out
+}
+
+// Pick sélectionne une version parmi rs selon want :
+//   - "" ou "latest" : la version la plus récente ;
+//   - "lts" : la version LTS la plus récente ;
+//   - "21" ou "21.0.4" : la plus récente correspondant au préfixe de segments.
+//
+// Elle retourne ErrNoRelease si aucune version ne correspond.
+func Pick(rs []Release, want string) (Release, error) {
+	c := Candidates(rs, want)
+	if len(c) == 0 {
+		return Release{}, ErrNoRelease
+	}
+	return c[0], nil
+}
+
+// PickResolved parcourt Candidates(rs, want) dans l'ordre et retourne la
+// première release que s.Resolve complète avec succès. Une erreur
+// ErrNoRelease fait passer au candidat suivant ; toute autre erreur est
+// retournée immédiatement. Si aucun candidat n'est résolu, elle retourne une
+// erreur satisfaisant errors.Is(err, ErrNoRelease) et citant want.
+func PickResolved(ctx context.Context, s Source, rs []Release, want string) (Release, error) {
+	for _, c := range Candidates(rs, want) {
+		r, err := s.Resolve(ctx, c)
+		if err == nil {
+			return r, nil
+		}
+		if errors.Is(err, ErrNoRelease) {
+			continue
+		}
+		return Release{}, err
+	}
+	return Release{}, fmt.Errorf("aucune version disponible pour %q : %w", want, ErrNoRelease)
 }
 
 // Restrict conserve les versions dont le numéro correspond à une entrée de
