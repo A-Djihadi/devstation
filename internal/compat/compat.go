@@ -11,10 +11,19 @@ import (
 // versions Node.js qu'elle exige, au format semver simplifié.
 // Source : https://angular.dev/reference/versions
 var angularNodeRanges = map[int]string{
-	19: "^18.19.1 || ^20.11.1 || ^22",
-	20: "^20.19 || ^22.12 || ^24",
-	21: "^20.19 || ^22.12 || ^24",
-	22: "^22.22 || ^24.13",
+	19: "^18.19.1 || ^20.11.1 || >=22.0.0",
+	20: "^20.19.0 || ^22.12.0 || >=24.0.0",
+	21: "^20.19.0 || ^22.12.0 || >=24.0.0",
+	22: "^22.22.3 || ^24.15.0 || >=26.0.0",
+}
+
+// angularNodeMessages associe chaque version majeure d'Angular au message
+// d'erreur affiché, reprenant la plage sous forme abrégée.
+var angularNodeMessages = map[int]string{
+	19: "Angular 19 exige Node ^18.19.1 || ^20.11.1 || >=22.0.0",
+	20: "Angular 20 exige Node ^20.19 || ^22.12 || ^24",
+	21: "Angular 21 exige Node ^20.19 || ^22.12 || ^24",
+	22: "Angular 22 exige Node ^22.22.3 || ^24.15.0 || >=26.0.0",
 }
 
 // AngularNode vérifie que la version de Node.js fournie satisfait la plage
@@ -28,6 +37,9 @@ func AngularNode(angularMajor int, nodeVersion string) error {
 	}
 	if satisfiesAny(nodeVersion, rng) {
 		return nil
+	}
+	if msg, ok := angularNodeMessages[angularMajor]; ok {
+		return fmt.Errorf("%s", msg)
 	}
 	return fmt.Errorf("Angular %d exige Node %s", angularMajor, rng)
 }
@@ -43,30 +55,44 @@ func satisfiesAny(version, ranges string) bool {
 	return false
 }
 
-// satisfies évalue une version contre une plage "^X.Y[.Z]" : même majeur et
-// version supérieure ou égale au minimum.
+// satisfies évalue une version contre une plage "^X.Y[.Z]" (même majeur et
+// version supérieure ou égale au minimum) ou ">=X.Y[.Z]" (version supérieure
+// ou égale au minimum, sans contrainte de majeur).
 func satisfies(version, rng string) bool {
-	rng = strings.TrimPrefix(strings.TrimSpace(rng), "^")
-	min, ok := parseVersion(rng)
+	rng = strings.TrimSpace(rng)
+	v, ok := parseVersion(version)
 	if !ok {
 		return false
 	}
-	v, ok := parseVersion(version)
+	if rest, ok := strings.CutPrefix(rng, ">="); ok {
+		min, ok := parseVersion(rest)
+		if !ok {
+			return false
+		}
+		return compareVersion(v, min) >= 0
+	}
+	rng = strings.TrimPrefix(rng, "^")
+	min, ok := parseVersion(rng)
 	if !ok {
 		return false
 	}
 	if v[0] != min[0] {
 		return false
 	}
-	for i := 1; i < 3; i++ {
-		if v[i] > min[i] {
-			return true
+	return compareVersion(v, min) >= 0
+}
+
+// compareVersion compare deux triplets de version et retourne -1, 0 ou 1.
+func compareVersion(a, b [3]int) int {
+	for i := 0; i < 3; i++ {
+		if a[i] < b[i] {
+			return -1
 		}
-		if v[i] < min[i] {
-			return false
+		if a[i] > b[i] {
+			return 1
 		}
 	}
-	return true
+	return 0
 }
 
 // parseVersion convertit "X", "X.Y" ou "X.Y.Z" en triplet [3]int. Le préfixe
