@@ -61,7 +61,7 @@ Un lot est mergé entièrement avant de lancer le suivant.
 
 ---
 
-## Lot 1 — Fondations (10 tâches indépendantes ; T1.9 part avec le lot 2)
+## Lot 1 — Fondations (9 tâches indépendantes ; T1.9 et T1.11 partent avec le lot 2)
 
 ### T1.1 Profil d'équipe : chargement et validation
 **Fichiers :** créer `internal/profile/profile.go`, `internal/profile/profile_test.go`, `profiles/demo.yaml` (contenu du §5.1 de la spec, avec `proxy_auth: none` et `vault.addr: http://localhost:8200`).
