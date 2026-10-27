@@ -185,6 +185,56 @@ func TestSourceErrorNamesTool(t *testing.T) {
 	}
 }
 
+// TestWizardAddedRoleFetchesReleases vérifie que les versions d'un rôle ajouté
+// par l'assistant sont recherchées après l'assistant.
+func TestWizardAddedRoleFetchesReleases(t *testing.T) {
+	app := testApp(t)
+	deps, _ := testDeps(t, app)
+	var out bytes.Buffer
+
+	pythonCalls := 0
+	srcs := testSources()
+	srcs["python"] = &countingSource{
+		testSource: testSource{name: "python", releases: []sources.Release{{Version: "3.12.7"}}},
+		calls:      &pythonCalls,
+	}
+
+	h := SetupHooks{
+		Sources: func(f sources.Fetcher, p *profile.Profile) map[string]sources.Source {
+			return srcs
+		},
+		Wizard: func(p *profile.Profile, a *profile.Answers, v map[string][]sources.Release, io ui.WizardIO) (*profile.Answers, error) {
+			out := *a
+			out.Roles = append(append([]string(nil), a.Roles...), "python")
+			return &out, nil
+		},
+		Token: func(io ui.WizardIO) (string, error) { return "", nil },
+		Out:   &out,
+	}
+	o := SetupOptions{ProfilePath: filepath.Join("..", "..", "profiles", "demo.yaml"), DryRun: true}
+	if err := runSetup(context.Background(), app, deps, o, h); err != nil {
+		t.Fatalf("runSetup : %v", err)
+	}
+	if pythonCalls == 0 {
+		t.Fatal("la source python n'a pas été interrogée")
+	}
+	if !strings.Contains(out.String(), "Python") {
+		t.Fatalf("étape Python absente :\n%s", out.String())
+	}
+}
+
+// countingSource compte les appels à Releases.
+type countingSource struct {
+	testSource
+	calls *int
+}
+
+// Releases compte l'appel puis délègue à la source en mémoire.
+func (s *countingSource) Releases(ctx context.Context) ([]sources.Release, error) {
+	*s.calls++
+	return s.testSource.Releases(ctx)
+}
+
 // TestRootCmdHasSetup vérifie la présence de setup et de --version.
 func TestRootCmdHasSetup(t *testing.T) {
 	root := newRootCmd()

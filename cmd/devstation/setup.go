@@ -230,6 +230,22 @@ func runSetup(ctx context.Context, app *App, deps install.Deps, o SetupOptions, 
 		app.Log.AddSecret(token)
 	}
 
+	// L'assistant a pu ajouter des rôles : complète les versions manquantes.
+	for _, tool := range setupTools(a, p) {
+		if _, ok := available[tool]; ok {
+			continue
+		}
+		src, ok := srcs[tool]
+		if !ok {
+			return fmt.Errorf("source de versions manquante pour l'outil %q", tool)
+		}
+		rs, err := src.Releases(ctx)
+		if err != nil {
+			return fmt.Errorf("recherche des versions de l'outil %q : %w", tool, err)
+		}
+		available[tool] = sources.Restrict(rs, profileVersions(p, tool))
+	}
+
 	// Résolution des releases retenues.
 	for _, tool := range setupTools(a, p) {
 		src, ok := srcs[tool]
