@@ -158,6 +158,36 @@ func TestConnectionDropMidBody(t *testing.T) {
 	}
 }
 
+func TestShortBodyWithoutChecksumFails(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "100")
+		w.Write(make([]byte, 10))
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			return
+		}
+		conn, _, err := hj.Hijack()
+		if err == nil {
+			conn.Close()
+		}
+	}))
+	defer srv.Close()
+
+	dir := t.TempDir()
+	c := newTestClient(t, Options{CacheDir: dir, Retries: 1})
+	_, _, err := c.Fetch(context.Background(), srv.URL, Checksum{}, nil)
+	if err == nil {
+		t.Fatal("erreur attendue")
+	}
+	entries, _ := os.ReadDir(dir)
+	if len(entries) != 0 {
+		t.Fatalf("fichiers restants dans le cache : %v", entries)
+	}
+}
+
 func TestUsesProxy(t *testing.T) {
 	body := []byte("via proxy")
 	var proxied int32

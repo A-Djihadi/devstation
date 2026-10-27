@@ -75,6 +75,8 @@ func New(o Options) (*Client, error) {
 	hc := o.HTTPClient
 	if hc == nil {
 		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.ResponseHeaderTimeout = 30 * time.Second
+		transport.TLSHandshakeTimeout = 15 * time.Second
 		if len(o.CACertFiles) > 0 {
 			pool, err := x509.SystemCertPool()
 			if err != nil || pool == nil {
@@ -122,10 +124,10 @@ func New(o Options) (*Client, error) {
 	return &Client{http: hc, cache: o.CacheDir, retries: retries, backoff: backoff}, nil
 }
 
-// cachePath retourne le chemin de cache pour une URL donnée.
+// cachePath retourne le chemin final de cache pour une URL donnée.
 func (c *Client) cachePath(u string) string {
 	sum := sha256.Sum256([]byte(u))
-	return filepath.Join(c.cache, hex.EncodeToString(sum[:])+".part")
+	return filepath.Join(c.cache, hex.EncodeToString(sum[:]))
 }
 
 // newHash retourne la fonction de hachage correspondant à l'algorithme.
@@ -217,7 +219,7 @@ func (c *Client) download(ctx context.Context, rawURL, dest string, sum Checksum
 		return false, fmt.Errorf("statut HTTP %d", resp.StatusCode)
 	}
 
-	tmp := dest + ".tmp"
+	tmp := dest + ".part"
 	f, err := os.Create(tmp)
 	if err != nil {
 		return false, err
@@ -264,6 +266,11 @@ func (c *Client) download(ctx context.Context, rawURL, dest string, sum Checksum
 	if err := f.Close(); err != nil {
 		os.Remove(tmp)
 		return false, err
+	}
+
+	if total >= 0 && done != total {
+		os.Remove(tmp)
+		return false, fmt.Errorf("taille reçue %d, attendue %d", done, total)
 	}
 
 	verified := false
