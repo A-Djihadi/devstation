@@ -1,0 +1,36 @@
+# Publication des releases DevStation.
+# Avant de poser un tag v*, mettre a jour $DevStationVersion dans setup.ps1.
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Pester
+        shell: pwsh
+        run: Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser
+      - name: Tests
+        env:
+          CI: "1"
+        run: sh scripts/test.sh
+      - name: Build windows/amd64
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -X main.version=${GITHUB_REF_NAME#v}" -o dist/devstation-windows-amd64.exe ./cmd/devstation
+      - name: Build windows/arm64
+        run: GOOS=windows GOARCH=arm64 go build -trimpath -ldflags "-s -w -X main.version=${GITHUB_REF_NAME#v}" -o dist/devstation-windows-arm64.exe ./cmd/devstation
+      - name: Checksums
+        run: cd dist && sha256sum devstation-windows-*.exe > checksums.txt
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "DevStation $GITHUB_REF_NAME" --generate-notes
