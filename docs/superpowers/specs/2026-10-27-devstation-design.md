@@ -37,6 +37,7 @@ l'installation ailleurs ou la partager à l'équipe.
 - Podman (client Windows + machine WSL2) pour builder et lancer les conteneurs en local et
   rejouer la CI/CD.
 - Extensions d'éditeur selon le profil.
+- Connexion au Vault HashiCorp partagé de l'équipe (client seulement, §6bis).
 - Commandes : assistant, `doctor`, changement de version, désinstallation, rejeu non interactif.
 - Deux dépôts de démo : `demo-backend` (Java) et `demo-frontend` (Angular, micro-frontend).
 
@@ -269,6 +270,40 @@ applique `no_proxy`. Profil : `network.proxy_auth: none | kerberos`.
 Authentification Nexus : v1 = lecture anonyme ; si le profil déclare `auth: true`, identifiant +
 mot de passe demandés et stockés dans le Gestionnaire d'identifiants Windows, puis injectés là où
 l'outil l'exige (le builder choisit le mécanisme le moins exposé par outil et le documente).
+
+## 6bis. Coffre de secrets partagé (HashiCorp Vault)
+
+**Intention (utilisateur).** L'équipe range ses clés d'API, comptes de service et identifiants dans
+un **Vault HashiCorp partagé**. Chaque poste DevStation doit pouvoir **s'y connecter**. DevStation
+**ne monte jamais** ce serveur partagé (décision utilisateur) : il est hébergé et administré ailleurs.
+
+**Ce que fait DevStation :**
+- Installe le **client `vault`** officiel (releases.hashicorp.com, SHA-256 vérifié), sans admin.
+- Profil : `vault: { addr: https://vault.example.com, auth: oidc | ldap | kerberos, mount: …, role: … }`.
+  `VAULT_ADDR` utilisateur défini, CA d'entreprise pris en compte (`VAULT_CACERT`), trafic via px si
+  le proxy est Kerberos.
+- Étape « Coffre » dans l'assistant, après Réseau : test de joignabilité puis `vault login` avec la
+  méthode du profil. **OIDC par défaut** (SSO dans le navigateur). Kerberos est souhaitable dans ce
+  contexte mais le client `vault` sous Windows ne s'appuie pas sur la session SSPI : le builder doit
+  vérifier si c'est faisable sans keytab ; sinon, repli documenté sur OIDC/LDAP.
+- *Choix de conception (Claude)* — le token Vault n'est **pas** laissé en clair dans `~/.vault-token` :
+  `devstation.exe` sert de *token helper* Vault (`token_helper` dans `~/.vault`, protocole get/store/erase)
+  et range le token dans le Gestionnaire d'identifiants Windows.
+- Le profil peut déclarer des **secrets à consommer** : ex. identifiants Nexus lus dans Vault au lieu
+  d'être saisis, puis écrits là où l'outil en a besoin (§6.4). Lecture seule.
+- `devstation secrets list [chemin]` et `devstation secrets get <chemin> [champ]` (valeur affichée
+  seulement sur demande explicite, ou copiée dans le presse-papiers avec `--copy`).
+- `doctor` : Vault joignable, token valide, durée de vie restante.
+
+**Démo locale.** Pour rendre le circuit visible sans serveur d'entreprise, `compose.yaml` (§7) ajoute
+un conteneur `hashicorp/vault` en **mode dev** (local, éphémère, jamais partagé) rempli de faux
+secrets par un script d'init ; `demo-backend` y lit un secret au démarrage (Spring Cloud Vault) et
+l'expose de façon non sensible (ex. `/api/greeting` signale « secret chargé : oui »). Le profil
+`demo.yaml` pointe `vault.addr` vers `http://localhost:8200` avec un token dev fictif documenté.
+
+**Non-objectifs.** Déployer ou administrer un Vault partagé ; écrire des secrets dans Vault ; gérer
+un « dossier partagé de clés en clair » (déconseillé : pas de contrôle d'accès, pas de traçabilité,
+pas de rotation).
 
 ## 7. Dépôts de démo
 
