@@ -1,0 +1,7 @@
+.agent/
+dist/
+*.exe
+.env
+__pycache__/
+.venv/
+node_modules/
