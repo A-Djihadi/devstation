@@ -3,6 +3,8 @@
 set -e
 export GOCACHE="${GOCACHE:-/tmp/gocache}" GOFLAGS="-mod=readonly -buildvcs=false" GOTOOLCHAIN=local
 [ -n "$CI" ] || export GOPROXY=off
+# Sandbox agentique : on formate (l'agent ne peut pas lancer gofmt) ; en CI, on verifie seulement.
+[ -n "$CI" ] || gofmt -w .
 unformatted=$(gofmt -l .)
 [ -z "$unformatted" ] || { echo "Fichiers non formatés (lancer gofmt -w) :"; echo "$unformatted"; exit 1; }
 go vet ./...
