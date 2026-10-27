@@ -3,13 +3,10 @@
 package winenv
 
 import (
-	"errors"
-
 	"github.com/A-Djihadi/devstation/internal/execx"
 )
 
-// errWindowsOnly est renvoyée par toutes les méthodes hors Windows.
-var errWindowsOnly = errors.New("disponible sous Windows uniquement")
+// errWindowsOnly est déclarée dans secrets_other.go.
 
 // NewEnv retourne une implémentation de Env non fonctionnelle hors Windows.
 func NewEnv() Env {
