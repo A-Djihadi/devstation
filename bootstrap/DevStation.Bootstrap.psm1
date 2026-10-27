@@ -1,4 +1,4 @@
-# Module de demarrage DevStation : telechargement verifie de l'exe et amorcage du proxy px.
+﻿# Module de demarrage DevStation : telechargement verifie de l'exe et amorcage du proxy px.
 # Compatible Windows PowerShell 5.1 et PowerShell 7.
 
 Set-StrictMode -Version Latest
