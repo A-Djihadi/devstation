@@ -82,9 +82,9 @@ type Profile struct {
 		Roles  []string `yaml:"roles"`
 		Editor string   `yaml:"editor"`
 	} `yaml:"defaults"`
-	Tools  Tools  `yaml:"tools"`
+	Tools   Tools   `yaml:"tools"`
 	Network Network `yaml:"network"`
-	Git    struct {
+	Git     struct {
 		Autocrlf string `yaml:"autocrlf"`
 	} `yaml:"git"`
 	Repos            []Repo                         `yaml:"repos"`
@@ -106,11 +106,11 @@ func (e *ValidationError) Error() string {
 }
 
 var (
-	validProxyAuth  = map[string]bool{"": true, "none": true, "kerberos": true}
-	validVaultAuth  = map[string]bool{"": true, "oidc": true, "ldap": true, "kerberos": true, "token": true}
-	validEditor     = map[string]bool{"": true, "vscode": true, "intellij": true, "both": true}
-	validRoles      = map[string]bool{"front": true, "back": true, "fullstack": true, "python": true}
-	validSecretTgt  = map[string]bool{"nexus.username": true, "nexus.password": true}
+	validProxyAuth = map[string]bool{"": true, "none": true, "kerberos": true}
+	validVaultAuth = map[string]bool{"": true, "oidc": true, "ldap": true, "kerberos": true, "token": true}
+	validEditor    = map[string]bool{"": true, "vscode": true, "intellij": true, "both": true}
+	validRoles     = map[string]bool{"front": true, "back": true, "fullstack": true, "python": true}
+	validSecretTgt = map[string]bool{"nexus.username": true, "nexus.password": true}
 )
 
 // unknownField extrait la clé inconnue et sa ligne depuis un message
