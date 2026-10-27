@@ -4,6 +4,8 @@ package execx
 
 import (
 	"context"
+	"errors"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -22,6 +24,10 @@ type Cmd struct {
 	Stdin string
 	// Secret indique que Stdin et Args ne doivent jamais être journalisés.
 	Secret bool
+	// Interactive relie la commande directement au terminal du processus
+	// (os.Stdin, os.Stdout, os.Stderr) au lieu de capturer ses sorties.
+	// Sert aux commandes qui attendent une saisie sur la console.
+	Interactive bool
 }
 
 // Result contient le résultat d'une exécution de commande.
@@ -48,19 +54,30 @@ func OS() Runner {
 // osRunner est l'implémentation réelle basée sur os/exec.
 type osRunner struct{}
 
-// Run exécute la commande via os/exec et capture ses sorties.
+// Run exécute la commande via os/exec et capture ses sorties. Si la commande
+// est Interactive, elle est reliée directement au terminal du processus et
+// ses sorties ne sont pas capturées.
 func (osRunner) Run(ctx context.Context, c Cmd) (Result, error) {
+	if c.Interactive && c.Stdin != "" {
+		return Result{}, errors.New("commande interactive : Stdin ne peut pas être fourni")
+	}
 	cmd := exec.CommandContext(ctx, c.Name, c.Args...)
 	cmd.Dir = c.Dir
 	if len(c.Env) > 0 {
 		cmd.Env = append(cmd.Environ(), c.Env...)
 	}
-	if c.Stdin != "" {
-		cmd.Stdin = strings.NewReader(c.Stdin)
-	}
 	var stdout, stderr strings.Builder
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	if c.Interactive {
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	} else {
+		if c.Stdin != "" {
+			cmd.Stdin = strings.NewReader(c.Stdin)
+		}
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+	}
 	err := cmd.Run()
 	res := Result{Stdout: stdout.String(), Stderr: stderr.String()}
 	if cmd.ProcessState != nil {
@@ -95,7 +112,8 @@ func (c Cmd) key() string {
 
 // String retourne une forme journalisable de la commande. Les arguments
 // contenant des espaces sont entourés de guillemets. Si Secret est vrai,
-// les arguments sont remplacés par "***".
+// les arguments sont remplacés par "***". Une commande interactive est
+// suffixée par " (interactif)".
 func (c Cmd) String() string {
 	if c.Secret {
 		return c.Name + " ***"
@@ -109,5 +127,9 @@ func (c Cmd) String() string {
 			parts = append(parts, a)
 		}
 	}
-	return strings.Join(parts, " ")
+	s := strings.Join(parts, " ")
+	if c.Interactive {
+		s += " (interactif)"
+	}
+	return s
 }
