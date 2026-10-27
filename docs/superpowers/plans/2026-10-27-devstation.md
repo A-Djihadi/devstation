@@ -169,7 +169,7 @@ func Execute(ctx context.Context, steps []Step, onEvent func(Event)) (Summary, e
 
 ### T1.8 Compatibilité Angular ↔ Node
 **Fichiers :** `internal/compat/compat.go`, `internal/compat/compat_test.go`.
-**Produit :** `func AngularNode(angularMajor int, nodeVersion string) error` (nil si compatible, sinon message « Angular 20 exige Node ^20.19 || ^22.12 || ^24 ») ; table en dur, vérifiée contre angular.dev/reference/versions : 19 → `^18.19.1 || ^20.11.1 || ^22`, 20 → `^20.19 || ^22.12 || ^24`, 21 → `^20.19 || ^22.12 || ^24`, 22 → `^22.22 || ^24.13` (à confirmer sur angular.dev). Majeur inconnu ⇒ nil (pas de blocage).
+**Produit :** `func AngularNode(angularMajor int, nodeVersion string) error` (nil si compatible, sinon message « Angular 20 exige Node ^20.19 || ^22.12 || ^24 ») ; table en dur, vérifiée contre angular.dev/reference/versions : (valeurs `engines.node` publiées sur npm) 19 → `^18.19.1 || ^20.11.1 || >=22.0.0`, 20 → `^20.19.0 || ^22.12.0 || >=24.0.0`, 21 → `^20.19.0 || ^22.12.0 || >=24.0.0`, 22 → `^22.22.3 || ^24.15.0 || >=26.0.0`. Majeur inconnu ⇒ nil (pas de blocage).
 **Tests :** `TestAngular20Node2212OK` · `TestAngular20Node18Rejected` · `TestUnknownAngularMajorAllowed`.
 
 ### T1.9 Thème et rendu texte
