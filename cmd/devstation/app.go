@@ -148,7 +148,10 @@ func (a *App) Deps(n profile.Network) (install.Deps, error) {
 	if err != nil {
 		return install.Deps{}, fmt.Errorf("initialisation du téléchargement : %w", err)
 	}
-	run := execx.OS()
+	var run execx.Runner = execx.OS()
+	if a.Log != nil {
+		run = execx.Logged(run, a.Log.Printf)
+	}
 	return install.Deps{
 		DL:    dl,
 		Env:   winenv.NewEnv(),

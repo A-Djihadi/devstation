@@ -5,6 +5,7 @@ package execx
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -83,7 +84,35 @@ func (osRunner) Run(ctx context.Context, c Cmd) (Result, error) {
 	if cmd.ProcessState != nil {
 		res.Code = cmd.ProcessState.ExitCode()
 	}
+	if err != nil && !c.Interactive && res.Stderr != "" {
+		if extrait := StderrExtract(res.Stderr); extrait != "" {
+			err = fmt.Errorf("%w : %s", err, extrait)
+		}
+	}
 	return res, err
+}
+
+// StderrExtract retourne un extrait lisible de stderr : les 20 dernières
+// lignes non vides, limité à 2000 caractères.
+func StderrExtract(stderr string) string {
+	lines := strings.Split(stderr, "\n")
+	kept := make([]string, 0, 20)
+	for i := len(lines) - 1; i >= 0 && len(kept) < 20; i-- {
+		l := strings.TrimRight(lines[i], "\r")
+		if strings.TrimSpace(l) == "" {
+			continue
+		}
+		kept = append(kept, l)
+	}
+	// Remet dans l'ordre d'origine.
+	for i, j := 0, len(kept)-1; i < j; i, j = i+1, j-1 {
+		kept[i], kept[j] = kept[j], kept[i]
+	}
+	out := strings.Join(kept, "\n")
+	if len(out) > 2000 {
+		out = out[len(out)-2000:]
+	}
+	return out
 }
 
 // Fake est un Runner factice qui enregistre les appels et renvoie des réponses prédéfinies.
