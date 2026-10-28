@@ -224,7 +224,7 @@ func (p *Podman) Install(ctx context.Context, d Deps, r sources.Release, report 
 	}
 	if !running {
 		if err := containersStartMachine(ctx, d, podmanExe, p.retryWait); err != nil {
-			return fmt.Errorf("la machine Podman ne démarre pas : %w\nEssayez : wsl --shutdown, puis relancez devstation setup (Docker Desktop peut aussi bloquer le premier démarrage : fermez-le le temps de l'installation).", err)
+			return fmt.Errorf("la machine Podman ne démarre pas : %w\nEssayez : wsl --shutdown, puis relancez devstation setup (si Docker Desktop est installé : Settings > Resources > WSL integration, décochez podman-machine-default).", err)
 		}
 	}
 
