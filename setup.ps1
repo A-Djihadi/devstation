@@ -16,7 +16,7 @@ param(
     $Rest
 )
 
-$DevStationVersion = "0.1.0"
+$DevStationVersion = "0.1.1"
 $PxVersion = "0.11.0"
 
 Set-StrictMode -Version Latest
