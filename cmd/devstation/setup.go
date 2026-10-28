@@ -291,8 +291,36 @@ func runSetup(ctx context.Context, app *App, deps install.Deps, o SetupOptions, 
 		titles[s.ID] = s.Title
 	}
 	progress := ui.NewProgress(h.Out, app.Theme, titles, app.Interactive)
-	summary, err := plan.Execute(ctx, steps, progress.Handle)
+
+	if app.Log != nil {
+		app.Log.Printf("devstation %s setup", version)
+		app.Log.Printf("profil : %s", o.ProfilePath)
+	}
+
+	handle := func(ev plan.Event) {
+		progress.Handle(ev)
+		if app.Log == nil {
+			return
+		}
+		switch ev.Status {
+		case plan.Running:
+			app.Log.Printf("étape %s : en cours", ev.StepID)
+		case plan.Done:
+			app.Log.Printf("étape %s : réussie", ev.StepID)
+		case plan.Skipped:
+			app.Log.Printf("étape %s : ignorée", ev.StepID)
+		case plan.Failed:
+			app.Log.Printf("étape %s : échec : %v", ev.StepID, ev.Err)
+		case plan.Blocked:
+			app.Log.Printf("étape %s : bloquée", ev.StepID)
+		}
+	}
+
+	summary, err := plan.Execute(ctx, steps, handle)
 	progress.Close(summary, app.LogPath)
+	if app.Log != nil {
+		app.Log.Printf("résumé : %d réussite(s), %d échec(s)", len(summary.Done), len(summary.Failed))
+	}
 	if err != nil {
 		return err
 	}
