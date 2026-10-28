@@ -92,6 +92,7 @@ Ouvrez ensuite http://localhost:8080 : le frontend affiche le message du backend
 - **Erreur de certificat** : ajoutez le PEM de l'autorité dans `ca_certs` du profil.
 - **Proxy** : utilisez la variante `-Kerberos` ; `devstation doctor` vérifie `px`.
 - **Un Java/Node installé par l'administrateur masque le nôtre** : le PATH système passe avant le PATH utilisateur ; `devstation doctor` le signale.
+- **La machine Podman ne démarre pas** (« machine did not transition into running state », `Wsl/Service/E_UNEXPECTED`) : si Docker Desktop est installé, décochez `podman-machine-default` dans Settings > Resources > WSL integration (Docker Desktop injecte sa configuration dans toutes les distributions WSL), puis `wsl --shutdown` et relancez `devstation setup`.
 - **WSL absent** : faites installer WSL2 par un administrateur (`wsl --install`) puis redémarrez.
 - **PATH non rechargé** : ouvrez un nouveau terminal après l'installation.
 

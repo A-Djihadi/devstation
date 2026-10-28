@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/A-Djihadi/devstation/internal/execx"
 	"github.com/A-Djihadi/devstation/internal/sources"
@@ -25,6 +26,13 @@ const containersComposeExe = "docker-compose.exe"
 // Podman, utilisé quand Install n'a pas encore tourné dans ce processus.
 const containersDefaultBinDir = "usr\\bin"
 
+// containersDefaultRetryWait est l'attente par défaut entre deux tentatives de
+// démarrage de la machine Podman.
+const containersDefaultRetryWait = 10 * time.Second
+
+// containersStartAttempts est le nombre maximal de tentatives de démarrage.
+const containersStartAttempts = 3
+
 // Podman installe Podman, Docker Compose et initialise la machine WSL.
 type Podman struct {
 	// Compose décrit la release de Docker Compose à installer.
@@ -37,6 +45,9 @@ type Podman struct {
 	// binDir est le dossier des exécutables relatif au dossier de version,
 	// mémorisé par Install.
 	binDir string
+	// retryWait est l'attente entre deux tentatives de démarrage de la
+	// machine ; 0 signifie containersDefaultRetryWait.
+	retryWait time.Duration
 }
 
 var _ Installer = (*Podman)(nil)
@@ -105,6 +116,57 @@ func containersMachineSSH(ctx context.Context, d Deps, podmanExe, path, data str
 	return err
 }
 
+// containersMachineRunning indique si au moins une machine Podman est
+// actuellement démarrée.
+func containersMachineRunning(ctx context.Context, d Deps, podmanExe string) (bool, error) {
+	res, err := containersRun(ctx, d, execx.Cmd{
+		Name: podmanExe,
+		Args: []string{"machine", "list", "--format", "json"},
+	})
+	if err != nil {
+		return false, err
+	}
+	var machines []struct {
+		Running bool `json:"Running"`
+	}
+	if err := json.Unmarshal([]byte(strings.TrimSpace(res.Stdout)), &machines); err != nil {
+		return false, fmt.Errorf("lecture de la liste des machines Podman : %w", err)
+	}
+	for _, m := range machines {
+		if m.Running {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// containersStartMachine démarre la machine Podman en réessayant jusqu'à
+// containersStartAttempts fois, avec un arrêt et une attente entre deux
+// tentatives. Elle retourne la dernière erreur rencontrée.
+func containersStartMachine(ctx context.Context, d Deps, podmanExe string, wait time.Duration) error {
+	if wait <= 0 {
+		wait = containersDefaultRetryWait
+	}
+	var lastErr error
+	for attempt := 0; attempt < containersStartAttempts; attempt++ {
+		if attempt > 0 {
+			// Arrêt best-effort : l'erreur est ignorée.
+			_, _ = d.Run.Run(ctx, execx.Cmd{Name: podmanExe, Args: []string{"machine", "stop"}})
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(wait):
+			}
+		}
+		if _, err := containersRun(ctx, d, execx.Cmd{Name: podmanExe, Args: []string{"machine", "start"}}); err == nil {
+			return nil
+		} else {
+			lastErr = err
+		}
+	}
+	return lastErr
+}
+
 // Install installe Podman, copie Compose et prépare la machine WSL.
 func (p *Podman) Install(ctx context.Context, d Deps, r sources.Release, report Report) error {
 	dir, err := InstallZip(ctx, d, "podman", r, true, report)
@@ -150,9 +212,19 @@ func (p *Podman) Install(ctx context.Context, d Deps, r sources.Release, report 
 	if len(machines) == 0 {
 		if _, err := containersRun(ctx, d, execx.Cmd{
 			Name: podmanExe,
-			Args: []string{"machine", "init", "--now"},
+			Args: []string{"machine", "init"},
 		}); err != nil {
 			return err
+		}
+	}
+
+	running, err := containersMachineRunning(ctx, d, podmanExe)
+	if err != nil {
+		return err
+	}
+	if !running {
+		if err := containersStartMachine(ctx, d, podmanExe, p.retryWait); err != nil {
+			return fmt.Errorf("la machine Podman ne démarre pas : %w\nEssayez : wsl --shutdown, puis relancez devstation setup (si Docker Desktop est installé : Settings > Resources > WSL integration, décochez podman-machine-default).", err)
 		}
 	}
 
